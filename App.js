@@ -1,52 +1,52 @@
-import React from "react";
-import { StyleSheet, Text, View, Button, TextInput, Switch, AppRegistry } from "react-native";
-
+import React, {Component} from "react";
+import { StyleSheet, Text, View, Button, ActivityIndicator, AppRegistry } from "react-native";
 import { NativeRouter, Route, Link } from "react-router-native";
+import { CheckBox, Input, Image, ListItem, Header, ScrollView } from 'react-native-elements';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 
-const LoginHeader = () => (
-  <View>
-    <Text style={styles.header}>Welcome to Witway</Text>
-    <Text style={styles.headerWords}>Ready to take control of your life & make the most of everyday oppotunity?</Text>
-  </View>
-);
+class LoginView extends React.Component {
+  state = {
+    checked: false,
+  };
+  render() {
+    return (
+      <View style={styles.container}>
+        <View>
+          <Text style={styles.header}>Welcome to Witway</Text>
+          <Text style={styles.headerWords}>Ready to take control of your life & make the most of everyday oppotunity?</Text>
+        </View>
 
-const LoginForm = () => (
-  <View>
-    <Text>Create a UserName to get started.</Text>
-    <Text>User Name</Text>
-    <UsernameInput />
-    <Text>Password</Text>
-    <PasswordInput />
-    <Switch />
-    <Text>I verify that I am at least 18 years or older</Text>
-    <Button
-      //onPress={}
-      title="Create"
-      color="#841584"
-      accessibilityLabel="Create a new user now"
-    />
-  </View>
 
-);
+        <Text>Create a UserName to get started.</Text>
+        <Input
+          placeholder='User Name'
+          leftIcon={{ type: 'font-awesome', name: 'user' }}
+          errorStyle={{ color: 'red' }}
+        />
+        <Input
+          placeholder='Password'
+          secureTextEntry={true}
+          leftIcon={{ type: 'font-awesome', name: 'lock' }}
+          errorStyle={{ color: 'red' }}
+        />
 
-const UsernameInput = () => (
-  <TextInput
-    style={styles.singleLineInput}
-  />
-);
-const PasswordInput = () => (
-  <TextInput
-    style={styles.singleLineInput}
-    secureTextEntry={true}
-  />
-);
-const LoginView = () => (
-  <View>
-    <LoginHeader />
-    <LoginForm />
-  </View>
-);
+        <CheckBox
+          center
+          title='I verify that I am at least 18 years or older'
+          checked={this.state.checked}
+          onPress={() => this.setState({ checked: !this.state.checked })}
+        />
+        <Button
+          title="Create"
+          color="#841584"
+          accessibilityLabel="Create a new user now"
+        />
+      </View>
+    );
+  }
+}
+
 
 
 
