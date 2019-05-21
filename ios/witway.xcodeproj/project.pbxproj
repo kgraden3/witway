@@ -56,6 +56,8 @@
 		93A6D77F0A614B40B1063B7B /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4F04C02A07CE4A72B9FE103D /* Octicons.ttf */; };
 		3FEADD88042F45C9B15C9BBF /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 19E852123EE04C6EA959B113 /* SimpleLineIcons.ttf */; };
 		4373DD104E7C40D2BE980D36 /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CF30480FED574C5EA03D8A06 /* Zocial.ttf */; };
+		83C7A311178D46EBA270F522 /* Honor.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BB4371D69E2A4B8DA467AE89 /* Honor.ttf */; };
+		E51CC377E6714F339403FCCD /* Honor-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 16D6293F5AEE4BDD9F9D2F83 /* Honor-Medium.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -381,6 +383,8 @@
 		4F04C02A07CE4A72B9FE103D /* Octicons.ttf */ = {isa = PBXFileReference; name = "Octicons.ttf"; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		19E852123EE04C6EA959B113 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; name = "SimpleLineIcons.ttf"; path = "../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		CF30480FED574C5EA03D8A06 /* Zocial.ttf */ = {isa = PBXFileReference; name = "Zocial.ttf"; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		BB4371D69E2A4B8DA467AE89 /* Honor.ttf */ = {isa = PBXFileReference; name = "Honor.ttf"; path = "../assets/fonts/Honor.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		16D6293F5AEE4BDD9F9D2F83 /* Honor-Medium.ttf */ = {isa = PBXFileReference; name = "Honor-Medium.ttf"; path = "../assets/fonts/Honor/Honor-Medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -667,6 +671,8 @@
 				4F04C02A07CE4A72B9FE103D /* Octicons.ttf */,
 				19E852123EE04C6EA959B113 /* SimpleLineIcons.ttf */,
 				CF30480FED574C5EA03D8A06 /* Zocial.ttf */,
+				BB4371D69E2A4B8DA467AE89 /* Honor.ttf */,
+				16D6293F5AEE4BDD9F9D2F83 /* Honor-Medium.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1133,6 +1139,8 @@
 				93A6D77F0A614B40B1063B7B /* Octicons.ttf in Resources */,
 				3FEADD88042F45C9B15C9BBF /* SimpleLineIcons.ttf in Resources */,
 				4373DD104E7C40D2BE980D36 /* Zocial.ttf in Resources */,
+				83C7A311178D46EBA270F522 /* Honor.ttf in Resources */,
+				E51CC377E6714F339403FCCD /* Honor-Medium.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

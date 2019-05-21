@@ -13,34 +13,39 @@ class LoginView extends React.Component {
     return (
       <View style={styles.container}>
         <View>
-          <Text style={styles.header}>Welcome to Witway</Text>
-          <Text style={styles.headerWords}>Ready to take control of your life & make the most of everyday oppotunity?</Text>
+          <Text style={styles.header}>WitWay</Text>
+          <Text style={styles.headerWords}>Take control of your life - make the most of everyday opportunities</Text>
         </View>
 
 
-        <Text>Create a UserName to get started.</Text>
         <Input
-          placeholder='User Name'
-          leftIcon={{ type: 'font-awesome', name: 'user' }}
+          placeholder=' User Name'
+          leftIcon={{ type: 'font-awesome',  color: '#0F444F', name: 'user' }}
           errorStyle={{ color: 'red' }}
         />
         <Input
-          placeholder='Password'
+          placeholder=' Password'
           secureTextEntry={true}
-          leftIcon={{ type: 'font-awesome', name: 'lock' }}
+          leftIcon={{ type: 'font-awesome', color: '#0F444F', name: 'lock' }}
+          errorStyle={{ color: 'red' }}
+        />
+        <Input
+          placeholder=' Email'
+          leftIcon={{ type: 'font-awesome',  color: '#0F444F', name: 'envelope' }}
           errorStyle={{ color: 'red' }}
         />
 
         <CheckBox
           center
-          title='I verify that I am at least 18 years or older'
+          title='I am at least 18 years or older'
           checked={this.state.checked}
+          checkedColor='#255E69'
           onPress={() => this.setState({ checked: !this.state.checked })}
         />
         <Button
-          title="Create"
-          color="#841584"
-          accessibilityLabel="Create a new user now"
+          title="Connect"
+          color="#255E69"
+          accessibilityLabel="Create a new user"
         />
       </View>
     );
@@ -64,7 +69,16 @@ const styles = StyleSheet.create({
     padding: 10
   },
   header: {
-    fontSize: 20
+    fontSize: 60,
+     textAlign: 'center',
+     color: '#A7383D',
+     fontWeight: 'bold',
+     fontFamily: 'Honor-Medium'
+  },
+  headerWords: {
+    fontSize: 25,
+    textAlign: 'center',
+    padding: 20,
   },
   nav: {
     flexDirection: "row",
