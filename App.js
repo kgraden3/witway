@@ -45,6 +45,7 @@ class LoginView extends React.Component {
         <Button
           title="Connect"
           color="#255E69"
+          justifyContent='flex-end'
           accessibilityLabel="Create a new user"
         />
       </View>
@@ -66,14 +67,16 @@ const styles = StyleSheet.create({
 
   container: {
     marginTop: 25,
-    padding: 10
+    padding: 10,
+    justifyContent: 'space-between',
+    flex: 1,
+    flexDirection: 'column'
   },
   header: {
     fontSize: 60,
      textAlign: 'center',
      color: '#A7383D',
-     fontWeight: 'bold',
-     fontFamily: 'Honor-Medium'
+     fontWeight: 'bold'
   },
   headerWords: {
     fontSize: 25,
