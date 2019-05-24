@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, Button, ActivityIndicator, ScrollView, AppRegistry, Dimensions, Animated } from "react-native";
+import { StyleSheet, Text, View, ActivityIndicator, ScrollView, AppRegistry, Dimensions, Animated } from "react-native";
 import { NativeRouter, Route, Link, Redirect, withRouter } from "react-router-native";
-import { CheckBox, Input, Image, ListItem, Header, Avatar } from 'react-native-elements';
+import { CheckBox, Input, Image, ListItem, Header, Button, Avatar, ButtonGroup, Overlay } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import SetCustomText  from 'react-native-global-props';
 import LinearGradient from 'react-native-linear-gradient';
@@ -10,17 +10,6 @@ import { Calendar} from 'react-native-calendars';
 const { width } = Dimensions.get('window');
 const { height} = Dimensions.get('window');
 
-const fakeAuth = {
-  isAuthenticated: false,
-  authenticate(cb) {
-    this.isAuthenticated = true;
-    setTimeout(cb, 100); // fake async
-  },
-  signout(cb) {
-    this.isAuthenticated = false;
-    setTimeout(cb, 100);
-  }
-};
 
 const CustomTextProps = {
   style: {
@@ -46,62 +35,103 @@ const SignOut = withRouter(
     )
 );
 
-class LoginView extends React.Component {
-  state = {
-    checked: false,
-    userLoggedIn: false,
-  };
+class LoginForm extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      age_checked: false,
+      username: '',
+      password: '',
+      userLoggedIn: false,
+      error: {
+        username: '',
+        password: '',
+        age: '',
+      },
+      custom_details: {
+        hair_color: 'brown',
+        eye_color: 'blue',
+      }
+    };
+    this.login = this.login.bind(this);
+    this.handleAge = this.handleAge.bind(this);
+    this.handleUsername = this.handleUsername.bind(this);
+    this.handlePassword = this.handlePassword.bind(this);
+  }
+  componentDidUpdate() {
 
-  login = () => {
-    fakeAuth.authenticate(() => {
+  }
+  login() {
+    if (this.state.age_checked && this.state.username && this.state.password) {
       this.setState({ userLoggedIn: true });
-    });
+    }
   };
+  handleAge() {
+    if (!this.state.age_checked) {
+      this.setState({ error: { ...this.state.error, age: 'Please verify your age' } });
+      return false;
+    } else {
+      this.setState({ error: { ...this.state.error, age: '' } });
+      return true;
+    }
+  }
+  handleUsername() {
+    if (!this.state.username) {
+      this.setState({ error: {...this.state.error, username: 'Please enter your username'}});
+    } else {
+      this.setState({ error: {...this.state.error, username: ''}});
+    }
+  }
 
+  handlePassword() {
+    if (!this.state.password) {
+      this.setState({ error: {...this.state.error, password: 'Please enter your password'}});
+    } else {
+      this.setState({ error: {...this.state.error, password: ''}});
+    }
+  }
 
   render() {
-    //const { from } = this.props.location.state || { from: { pathname: "/" } };
-    const { userLoggedIn } = this.state;
-
-    if (userLoggedIn) {
-      return <UserDetailView />;
+    if (this.state.userLoggedIn) {
+      return <UserDetailView username={this.state.username} />
     }
     return (
       <View style={styles.container}>
-
           <Image  style={styles.logo}
                   resizeMode={'contain'}
-                  source={require('./assets/images/witway-logo.png')} />
-
-
-        <View style={styles.loginContainer}>
-          <Input
+                  source={require('./assets/images/witway-logo.png')}
+                  />
+       <View style={styles.loginContainer}>
+           <Input
             placeholder=' User Name'
             leftIcon={{ type: 'font-awesome',  color: '#0F444F', name: 'user' }}
             errorStyle={{ color: 'red' }}
+            errorMessage={this.state.error.username}
+            onChangeText={(username) => this.setState({username})}
+            onBlur={this.handleUsername}
           />
           <Input
             placeholder=' Password'
             secureTextEntry={true}
             leftIcon={{ type: 'font-awesome', color: '#0F444F', name: 'lock' }}
             errorStyle={{ color: 'red' }}
+            errorMessage={this.state.error.password}
+            onChangeText={(password) => this.setState({password})}
+            onBlur={this.handlePassword}
           />
-          <Input
-            placeholder=' Email'
-            leftIcon={{ type: 'font-awesome',  color: '#0F444F', name: 'envelope' }}
-            errorStyle={{ color: 'red' }}
-          />
+
           <CheckBox
             center
             title='I am at least 18 years or older'
-            checked={this.state.checked}
+            checked={this.state.age_checked}
             checkedColor='#255E69'
-            onPress={() => this.setState({ checked: !this.state.checked })}
+            onPress={() => {this.setState({ age_checked: !this.state.age_checked }, this.handleAge)}}
           />
+          <Text style={ {color: 'red' } }>{this.state.error.age}</Text>
           <Button
-            title="Create"
+            title="Login"
             color="#255E69"
-            accessibilityLabel="Create a new user now"
+            accessibilityLabel="Login Now"
             onPress={this.login}
           />
         </View>
@@ -322,23 +352,35 @@ class UserDetailView extends React.Component {
           )}
           scrollEventThrottle={16}
         >
-          {this.state.users.map(item => (this.userCard(item)))}
+          {this.userCard(this.state.user)}
+          {this.state.companions.map(c => (this.userCard(c)))}
         </ScrollView>
-        <View style={{ flexDirection: 'row'}}>
-          {this.state.users.map((_, i) => {
-            let opacity = position.interpolate({
-              inputRange: [i - 1, i, i + 1],
-              outputRange: [0.3, 1, 0.3],
-              extrapolate: 'clamp' // this will prevent the opacity of the dots from going outside of the outputRange (i.e. opacity will not be less than 0.3)
-            });
-            return (
-              <Animated.View
-                key={i}
-                style={{ opacity, height: 10, width: 10, backgroundColor: '#595959', margin: 8, borderRadius: 5 }}
-              />
-            );
 
-          })}
+
+          <View style={{ flexDirection: 'row' }}>
+            {this.generateDot(this.state.companions.length+1)}
+          </View>
+          <View>
+            <Button
+              icon={
+                <Icon
+                  name="calendar"
+                  type='font-awesome'
+                  size={15}
+                  color="white"
+                 />
+               }
+               />
+          <Button
+            icon={
+              <Icon
+                name="plus-square"
+                type='font-awesome'
+                size={15}
+                color="white"
+              />
+            }
+          />
         </View>
       </View>
     );
@@ -350,7 +392,7 @@ class App extends Component {
 
   render() {
     return (
-      <LoginView />
+      <LoginForm />
     );
   }
 
@@ -372,13 +414,6 @@ const styles = StyleSheet.create({
     padding: 0,
     flex: 1,
     flexDirection: 'column',
-    justifyContent: 'flex-start'
-  },
-  logoContainer: {
-    backgroundColor: 'black',
-    paddingTop: 0,
-    marginTop: 0,
-    flex: 2,
     justifyContent: 'flex-start'
   },
   loginContainer: {
