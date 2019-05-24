@@ -169,6 +169,7 @@ class PrivacyChoice extends Component {
 
     return (
       <ButtonGroup
+        buttonStyle={{backgroundColor: '#255E69'}}
         onPress={this.updateIndex}
         selectedIndex={selectedIndex}
         buttons={buttons}
@@ -458,7 +459,7 @@ class UserDetailView extends React.Component {
               onBackdropPress={this.hideOverlay}
             >
               <View>
-                <Text>Edit Details</Text>
+                <Text>Edit Detail</Text>
                 <Input
                   label={this.state.overlay.label}
                   value={this.state.overlay.value}
@@ -466,6 +467,7 @@ class UserDetailView extends React.Component {
                 <PrivacyChoice private={this.state.overlay.private} />
                 <Button
                   title='Edit'
+                  buttonStyle={{backgroundColor: '#255E69'}}
                 />
               </View>
             </Overlay>
