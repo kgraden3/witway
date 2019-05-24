@@ -1,24 +1,50 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, ActivityIndicator, ScrollView, AppRegistry, Dimensions, Animated } from "react-native";
+import { Alert, StyleSheet, Text, View, ActivityIndicator, ScrollView, AppRegistry, Dimensions, Animated } from "react-native";
 import { NativeRouter, Route, Link, Redirect, withRouter } from "react-router-native";
 import { CheckBox, Input, Image, ListItem, Header, Button, Avatar, ButtonGroup, Overlay } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import SetCustomText  from 'react-native-global-props';
-import LinearGradient from 'react-native-linear-gradient';
-import { Calendar} from 'react-native-calendars';
+import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
+import { createStackNavigator, createBottomTabNavigator, createAppContainer } from "react-navigation";
+
+import NotifService from './notifService';
+
+
 
 const { width } = Dimensions.get('window');
 const { height} = Dimensions.get('window');
 
 
-const CustomTextProps = {
-  style: {
-    fontSize: 16,
-    fontFamily: 'Roboto',
-    color: 'black'
-  }
-};
 
+
+
+class Notify extends Component {
+  constructor(props) {
+    super(props);
+    this.notif = new NotifService(this.onRegister.bind(this), this.onNotif.bind(this));
+  }
+
+  onRegister(token) {
+    Alert.alert("Registered !", JSON.stringify(token));
+    console.log(token);
+    this.setState({ registerToken: token.token, gcmRegistered: true });
+  }
+
+  onNotif(notif) {
+    console.log(notif);
+    Alert.alert(notif.title, notif.message);
+  }
+  handlePerm(perms) {
+    Alert.alert("Permissions", JSON.stringify(perms));
+  }
+  render() {
+    return (
+      <Button
+        title="Notify"
+        onPress={() => { this.notif.localNotif() }}
+      />
+    );
+  }
+}
 
 const SignOut = withRouter(
   ({ history }) =>
@@ -92,7 +118,12 @@ class LoginForm extends Component {
 
   render() {
     if (this.state.userLoggedIn) {
-      return <UserDetailView username={this.state.username} />
+      return (
+        <UserDetailView
+          navigation={this.props.navigation}
+          username={this.state.username}
+        />
+      );
     }
     return (
       <View style={styles.container}>
@@ -160,7 +191,8 @@ class PrivacyChoice extends Component {
   }
 
   updateIndex(selectedIndex) {
-    this.setState({selectedIndex})
+    this.setState({selectedIndex});
+    this.props.onSelectChange(selectedIndex);
   }
 
   render() {
@@ -335,6 +367,7 @@ class UserDetailView extends React.Component {
       ],
       overlay: {
         isVisible: false,
+        id: '',
         private: false,
         label: '',
         value: '',
@@ -344,6 +377,8 @@ class UserDetailView extends React.Component {
     this.generateDot = this.generateDot.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.hideOverlay = this.hideOverlay.bind(this);
+    this.handleEdit = this.handleEdit.bind(this);
+    this.handleSelectChange = this.handleSelectChange.bind(this);
   }
 
 
@@ -356,6 +391,32 @@ class UserDetailView extends React.Component {
         private: data.private,
         label: data.label,
         value: data.value,
+        id: data.id,
+      }
+    });
+  }
+  handleSelectChange(index) {
+    this.setState({
+      overlay: {
+        ...this.state.overlay,
+        private: !index,
+      }
+    });
+  }
+  handleEdit() {
+    var details = this.state.user.details;
+    var index = details.findIndex((obj => obj.id == this.state.overlay.id));
+    details[index].label = this.state.overlay.label;
+    details[index].value = this.state.overlay.value;
+    details[index].private = this.state.overlay.private;
+    this.setState({
+      user: {
+        ...this.state.user,
+        details,
+      },
+      overlay: {
+        ...this.state.overlay,
+        isVisible: false,
       }
     });
   }
@@ -385,8 +446,6 @@ class UserDetailView extends React.Component {
               <Text style={styles.currentLocation}>Current Location:</Text>
                 <Text style={styles.location}>{user.location.value}</Text>
                 <Text>{user.location.private?'Private':'Public'}</Text>
-
-
             </View>
           </View>
           <ScrollView>
@@ -407,7 +466,7 @@ class UserDetailView extends React.Component {
                     title={v.label}
                     rightTitle={v.value}
                     subtitle={v.private?'Private':'Public'}
-                    onPress={e => this.handleClick(e, {label: v.label, value: v.value, private: v.private})}
+                    onPress={e => this.handleClick(e, {label: v.label, value: v.value, private: v.private, id: v.id})}
                   />
                 ))}
                 {
@@ -453,7 +512,9 @@ class UserDetailView extends React.Component {
 
             <Overlay
               isVisible={this.state.overlay.isVisible}
-              windowBackgroundColor="rgba(255, 255, 255, .5)"
+              windowBackgroundColor="rgba(120, 120, 120, .8)"
+              overlayStyle={{ borderWidth: 1, borderStyle: 'solid', borderColor: '#c7c7cc'}}
+              borderRadius={5}
               width={width*.8}
               height="auto"
               onBackdropPress={this.hideOverlay}
@@ -463,11 +524,16 @@ class UserDetailView extends React.Component {
                 <Input
                   label={this.state.overlay.label}
                   value={this.state.overlay.value}
+                  onChangeText={text => this.setState({overlay: {...this.state.overlay, value: text}})}
                 />
-                <PrivacyChoice private={this.state.overlay.private} />
+                <PrivacyChoice
+                  onSelectChange={this.handleSelectChange}
+                  private={this.state.overlay.private}
+                />
                 <Button
                   title='Edit'
                   buttonStyle={{backgroundColor: '#255E69'}}
+                  onPress={this.handleEdit}
                 />
               </View>
             </Overlay>
@@ -518,92 +584,87 @@ class UserDetailView extends React.Component {
           {this.userCard(this.state.user)}
           {this.state.companions.map(c => (this.userCard(c)))}
         </ScrollView>
-
-
           <View style={{ flexDirection: 'row' }}>
             {this.generateDot(this.state.companions.length+1)}
           </View>
-
-            <View style={styles.buttonPanel}>
-              <Button
-                style={{ flex: 1 }}
-                containerStyle={styles.bottomButtonContainer}
-                buttonStyle={styles.bottomButton}
-                iconRight
-                title="Feed &nbsp; "
-                icon={
-                    <Icon
-                      name="rss"
-                      type='font-awesome'
-                      color= '#6A959D'
-                      size={25}
-                      containerStyle={styles.iconContainer}
-                     />
-                   }
-                 />
-              <Button
-                style={{ flex: 1 }}
-                containerStyle={styles.bottomButtonContainer}
-                buttonStyle={styles.bottomButton}
-                iconRight
-                disabled
-                title="Calendar &nbsp; "
-                icon={
-                    <Icon
-                      name="calendar"
-                      type='font-awesome'
-                      color= '#6A959D'
-                      size={25}
-                      containerStyle={styles.iconContainer}
-                     />
-                   }
-                 />
-                 <Button
-                 style={{ flex: 1 }}
-                 title="Profile &nbsp;"
-                 disabled
-                 containerStyle={styles.bottomButtonContainer}
-                 buttonStyle={styles.bottomButton}
-                 iconRight
-                   icon={
-                     <Icon
-                       name="user"
-                       type='font-awesome'
-                       size={25}
-                       color= '#6A959D'
-                       containerStyle={styles.iconContainer}
-                     />
-                    }
-                   />
-                 <Button
-                   style={{ flex: 1 }}
-                   containerStyle={styles.bottomButtonContainer}
-                   buttonStyle={styles.bottomButton}
-                   iconRight
-                   disabled
-                   title="Friends &nbsp; "
-                   icon={
-                       <Icon
-                         name="users"
-                         type='font-awesome'
-                         color= '#6A959D'
-                         size={25}
-                         containerStyle={styles.iconContainer}
-                        />
-                      }
-                    />
-            </View>
       </View>
     );
   }
 }
 
+class FeedView extends Component {
+  render() {
+    return (
+      <Text>Feed</Text>
+    );
+  }
+}
+class Friends extends Component {
+  render() {
+    return (
+      <Text>Friend List</Text>
+    );
+  }
+}
 
+const getTabBarIcon = (navigation, focused, tintColor) => {
+  const { routeName } = navigation.state;
+  let IconComponent = Icon;
+  let iconName;
+  switch (routeName) {
+    case 'Profile':
+      iconName = 'user';
+      break;
+    case 'Feed':
+      iconName = 'rss';
+      break;
+    case 'Calendar':
+      iconName = 'calendar';
+      break;
+    case 'Friends':
+      iconName = 'users';
+      break;
+  }
+  // You can return any component that you like here!
+  return <IconComponent name={iconName} size={25} color={tintColor} type="font-awesome" />;
+};
+
+const Tabs = createBottomTabNavigator(
+  {
+    Profile: {screen: UserDetailView},
+    Feed: {screen: FeedView},
+    Calendar: {screen: Calendar},
+    Friends: {screen: Friends},
+  },
+  {
+    initialRouteName: 'Profile',
+    defaultNavigationOptions: ({ navigation }) => ({
+      tabBarIcon: ({ focused, horizontal, tintColor }) => getTabBarIcon(navigation, focused, tintColor),
+    }),
+    tabBarOptions: {
+      activeTintColor: 'tomato',
+      inactiveTintColor: 'gray',
+    },
+  }
+);
+
+const RootStack = createStackNavigator(
+  {
+    LoginView: LoginForm,
+    UserView: UserDetailView,
+    CalendarView: Calendar,
+  },
+  {
+    initialRouteName: 'LoginView',
+  }
+);
+
+const AppContainer = createAppContainer(Tabs);
 class App extends Component {
 
   render() {
     return (
-      <LoginForm />
+      <AppContainer />
     );
   }
 }
@@ -644,7 +705,6 @@ const styles = StyleSheet.create({
      textAlign: 'center',
      color: '#A7383D',
      fontWeight: 'bold',
-     fontFamily: 'Roboto',
   },
   detailsHeader: {
      marginTop: 20,
@@ -661,7 +721,6 @@ const styles = StyleSheet.create({
      borderTopRightRadius: 7,
      borderColor: '#012C34',
      borderWidth: 2,
-      fontFamily: 'Roboto',
   },
   privateHeader: {
      fontSize: 25,
@@ -677,13 +736,11 @@ const styles = StyleSheet.create({
      borderTopRightRadius: 10,
      borderColor: '#540004',
      borderWidth: 2,
-     fontFamily: 'Roboto',
 
   },
   headerWords: {
     fontSize: 25,
     textAlign: 'center',
-    fontFamily: 'Roboto',
   },
   nav: {
     flexDirection: "row",
