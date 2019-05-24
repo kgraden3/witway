@@ -1237,6 +1237,8 @@
 				93A6D77F0A614B40B1063B7B /* Octicons.ttf in Resources */,
 				3FEADD88042F45C9B15C9BBF /* SimpleLineIcons.ttf in Resources */,
 				4373DD104E7C40D2BE980D36 /* Zocial.ttf in Resources */,
+				83C7A311178D46EBA270F522 /* Honor.ttf in Resources */,
+				E51CC377E6714F339403FCCD /* Honor-Medium.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

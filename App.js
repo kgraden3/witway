@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import { Alert, StyleSheet, Text, View, ActivityIndicator, ScrollView, AppRegistry, Dimensions, Animated } from "react-native";
 import { NativeRouter, Route, Link, Redirect, withRouter } from "react-router-native";
-import { CheckBox, Input, Image, ListItem, Header, Button, ButtonGroup, Overlay } from 'react-native-elements';
+import { CheckBox, Input, Image, ListItem, Header, Button, Avatar, ButtonGroup, Overlay } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
-import { createStackNavigator, createAppContainer } from "react-navigation";
+import { createStackNavigator, createBottomTabNavigator, createAppContainer } from "react-navigation";
 
 import NotifService from './notifService';
 
@@ -73,6 +73,10 @@ class LoginForm extends Component {
         username: '',
         password: '',
         age: '',
+      },
+      custom_details: {
+        hair_color: 'brown',
+        eye_color: 'blue',
       }
     };
     this.login = this.login.bind(this);
@@ -84,9 +88,8 @@ class LoginForm extends Component {
 
   }
   login() {
-    if (this.state.age_checked && this.state.username && this.state.password) {
       this.setState({ userLoggedIn: true });
-    }
+
   };
   handleAge() {
     if (!this.state.age_checked) {
@@ -124,44 +127,54 @@ class LoginForm extends Component {
     }
     return (
       <View style={styles.container}>
-        <View>
-          <Text style={styles.header}>WitWay</Text>
-          <Text style={styles.headerWords}>Take control of your life - make the most of everyday opportunities</Text>
+          <Image  style={styles.logo}
+                  resizeMode={'contain'}
+                  source={require('./assets/images/witway-logo.png')}
+                  />
+       <View style={styles.loginContainer}>
+           <Input
+            placeholder=' User Name'
+            leftIcon={{ type: 'font-awesome',  color: '#0F444F', name: 'user' }}
+            errorStyle={{ color: 'red' }}
+            errorMessage={this.state.error.username}
+            onChangeText={(username) => this.setState({username})}
+            onBlur={this.handleUsername}
+          />
+          <Input
+            placeholder=' Password'
+            secureTextEntry={true}
+            leftIcon={{ type: 'font-awesome', color: '#0F444F', name: 'lock' }}
+            errorStyle={{ color: 'red' }}
+            errorMessage={this.state.error.password}
+            onChangeText={(password) => this.setState({password})}
+            onBlur={this.handlePassword}
+          />
+
+          <CheckBox
+            center
+            title='I am at least 18 years or older'
+            checked={this.state.age_checked}
+            checkedColor='#255E69'
+            onPress={() => {this.setState({ age_checked: !this.state.age_checked }, this.handleAge)}}
+          />
+          <Text style={ {color: 'red' } }>{this.state.error.age}</Text>
+
+
+          <View style={styles.loginButtonContainer}>
+            <View style={styles.spacer}></View>
+            <View style={styles.spacer2}>
+              <Button
+                title="Login"
+                accessibilityLabel="Login Now"
+                onPress={this.login}
+                buttonStyle={{backgroundColor: '#255E69'}}
+              />
+            </View>
+            <View style={styles.spacer}></View>
+          </View>
+
+
         </View>
-
-
-        <Input
-          placeholder=' User Name'
-          leftIcon={{ type: 'font-awesome',  color: '#0F444F', name: 'user' }}
-          errorStyle={{ color: 'red' }}
-          errorMessage={this.state.error.username}
-          onChangeText={(username) => this.setState({username})}
-          onBlur={this.handleUsername}
-        />
-        <Input
-          placeholder=' Password'
-          secureTextEntry={true}
-          leftIcon={{ type: 'font-awesome', color: '#0F444F', name: 'lock' }}
-          errorStyle={{ color: 'red' }}
-          errorMessage={this.state.error.password}
-          onChangeText={(password) => this.setState({password})}
-          onBlur={this.handlePassword}
-        />
-
-        <CheckBox
-          center
-          title='I am at least 18 years or older'
-          checked={this.state.age_checked}
-          checkedColor='#255E69'
-          onPress={() => {this.setState({ age_checked: !this.state.age_checked }, this.handleAge)}}
-        />
-        <Text style={ {color: 'red' } }>{this.state.error.age}</Text>
-        <Button
-          title="Login"
-          color="#841584"
-          accessibilityLabel="Login Now"
-          onPress={this.login}
-        />
       </View>
     );
   }
@@ -231,9 +244,9 @@ class UserDetailView extends React.Component {
       user:
       {
         id: 1,
-        username: 'username',
+        username: 'LeeJen',
         location: {
-          value: 'location',
+          value: 'Birmingham, AL',
           private: false,
         },
         public_profile_pic: './assets/images/Header-Icon-User.png',
@@ -242,77 +255,110 @@ class UserDetailView extends React.Component {
             id: 1,
             order: 1,
             label: 'First Name',
-            value: 'John',
+            value: 'Leeroy',
             private: false,
           },
           {
             id: 2,
             order: 2,
             label: 'Last Name',
-            value: 'Doe',
+            value: 'Jenkins',
             private: false,
+          },
+          {
+            id: 3,
+            order: 3,
+            label: 'Occupation',
+            value: 'Graphic Designer',
+            private: false,
+          },
+          {
+            id: 4,
+            order: 4,
+            label: 'Address',
+            value: '125 Main Street',
+            private: true,
+          },
+          {
+            id: 5,
+            order: 5,
+            label: 'Email',
+            value: 'leeeeeeroy@gmail.com',
+            private: true,
           },
         ],
         custom_details: [
           {
             id: 1,
             order: 1,
-            label: 'custom1',
-            value: 'customval1',
+            label: 'Favorite Color',
+            value: 'Teal',
             private: false,
           },
         ],
-
-
       },
       companions:
       [
         {
           id: 1,
-          username: 'companion username',
+          username: 'Companion #1',
           location: {
-            value: 'location',
-            private: true,
+            value: 'Birmingham, AL',
+            private: false,
           },
-          public_profile_pic: './assets/images/Header-Icon-User.png',
+          public_profile_pic: './assets/images/user-red.png',
           details: [
             {
               id: 1,
               order: 1,
               label: 'First Name',
-              value: 'John',
+              value: 'Juan',
               private: false,
             },
             {
               id: 2,
               order: 2,
               label: 'Last Name',
-              value: 'Doe',
+              value: 'Henrique',
+              private: false,
+            },
+            {
+              id: 3,
+              order: 3,
+              label: 'Occupation',
+              value: 'Developer',
               private: false,
             },
           ],
         },
         {
           id: 2,
-          username: 'companion username2',
+          username: 'Companion #2',
           location: {
-            value: 'location',
+            value: 'Tokyo, Japan',
             private: false,
           },
-          public_profile_pic: './assets/images/Header-Icon-User.png',
+          public_profile_pic: './assets/images/user-red.png',
           details: [
             {
               id: 1,
               order: 1,
               label: 'First Name',
-              value: 'John',
+              value: 'Alice',
               private: false,
             },
             {
               id: 2,
               order: 2,
               label: 'Last Name',
-              value: 'Doe',
+              value: 'Walker',
+              private: false,
+            },
+            {
+              id: 3,
+              order: 3,
+              label: 'Email',
+              value: 'awalker@reed.edu',
               private: false,
             },
           ],
@@ -385,49 +431,84 @@ class UserDetailView extends React.Component {
       return (
         <View key={user.id} style={styles.cardContainer}>
           <Header
-            placement="left"
-            centerComponent={{ text: user.username, style: { color: '#fff' } }}
+            containerStyle={{height: 40, marginTop: 0, paddingTop: 0, backgroundColor: '#255E69'}}
+            placement="center"
+            centerComponent={{ text: user.username, style: {fontSize:25,  paddingBottom: 3, textAlign: 'center', fontWeight: 'bold', color: '#fff' } }}
           />
-          <View style={{flexDirection: 'row'}}>
+          <View style={{flexDirection: 'row', padding: 10, borderBottomWidth: 2, borderBottomColor: '#255E69'}}>
             <Image
               style={{width: 100, height: 100}}
-              source={require('./assets/images/Header-Icon-User.png')}
+              source={require('./assets/images/user-blue.png')}
               PlaceholderContent={<ActivityIndicator />}
             />
-            <View>
-              <Text>Current Location</Text>
-              <Text>{user.location.value}</Text>
-              <Text>{user.location.private?'Private':'Public'}</Text>
+            <View style={{padding: 5, paddingLeft: 15}}>
+              <Text style={styles.currentLocation}>Current Location:</Text>
+                <Text style={styles.location}>{user.location.value}</Text>
+                <Text>{user.location.private?'Private':'Public'}</Text>
             </View>
           </View>
-
-          <Text style={styles.header}>Details</Text>
-          <View style={styles.userDetailsContainer}>
-            <View style={styles.userDetails}>
-              {user.details.map((v, i) => (
-                <ListItem
-                  key={v.id}
-                  order={v.order}
-                  title={v.label}
-                  rightTitle={v.value}
-                  subtitle={v.private?'Private':'Public'}
-                  onPress={e => this.handleClick(e, {label: v.label, value: v.value, private: v.private, id: v.id})}
-                />
-              ))}
-            </View>
-            <View style={styles.customUserDetails}>
-              {
-                user.custom_details?user.custom_details.map((v, i) => (
+          <ScrollView>
+            <Text style={styles.detailsHeader}>Details</Text>
+            <View style={styles.userDetailsContainer}>
+              <View style={styles.userDetails}>
+                {user.details.map((v, i) => (
                   <ListItem
+                    titleStyle={styles.profilePublicTitle}
+                    rightTitleStyle={styles.profilePublicRightTitle}
+                    rightTitle={user.details.occupation}
+                    containerStyle={v.private?styles.profilePrivateContentContainer:styles.profilePublicContainer}
+                    contentContainerStyle={styles.profileContentContainer}
+                    rightContentContainerStyle={styles.profileRightContainer}
+                    subtitleStyle={styles.profileSubtitleStyle}
                     key={v.id}
                     order={v.order}
                     title={v.label}
                     rightTitle={v.value}
                     subtitle={v.private?'Private':'Public'}
+                    onPress={e => this.handleClick(e, {label: v.label, value: v.value, private: v.private, id: v.id})}
                   />
-                )):false
-              }
-            </View>
+                ))}
+                {
+                  user.custom_details?user.custom_details.map((v, i) => (
+                    <ListItem
+                      titleStyle={styles.profilePublicTitle}
+                      rightTitleStyle={styles.profilePublicRightTitle}
+                      rightTitle={user.details.occupation}
+                      containerStyle={styles.profilePublicContainer}
+                      contentContainerStyle={styles.profileContentContainer}
+                      rightContentContainerStyle={styles.profileRightContainer}
+                      subtitleStyle={styles.profileSubtitleStyle}
+                      key={v.id}
+                      order={v.order}
+                      title={v.label}
+                      rightTitle={v.value}
+                      subtitle={v.private?'Private':'Public'}
+                    />
+                  )):false
+                }
+                <View style={styles.detailButtonView}>
+                  <View style={{flex: 1}}/>
+                  <Button
+                  style={{ flex: 1, padding: 3 }}
+                  title="Add Detail &nbsp;"
+                  containerStyle={styles.detailButtonContainer}
+                  buttonStyle={styles.bottomButton}
+                  iconRight
+                    icon={
+                      <Icon
+                        name="plus-square"
+                        type='font-awesome'
+                        size={25}
+                        color= '#6A959D'
+                        iconStyle={styles.iconContainer}
+                      />
+                     }
+                    />
+                  <View style={{flex: 1}}/>
+                </View>
+              </View>
+
+
             <Overlay
               isVisible={this.state.overlay.isVisible}
               windowBackgroundColor="rgba(120, 120, 120, .8)"
@@ -454,7 +535,12 @@ class UserDetailView extends React.Component {
                 />
               </View>
             </Overlay>
-          </View>
+            </View>
+
+
+          </ScrollView>
+
+
         </View>
       );
 
@@ -496,41 +582,69 @@ class UserDetailView extends React.Component {
           {this.userCard(this.state.user)}
           {this.state.companions.map(c => (this.userCard(c)))}
         </ScrollView>
-        <View style={{ flexDirection: 'row' }}>
-          {this.generateDot(this.state.companions.length+1)}
-        </View>
-        <View>
-          <Button
-            icon={
-              <Icon
-                name="calendar"
-                type='font-awesome'
-                size={15}
-                color="white"
-              />
-            }
-            onPress={() => this.props.navigation.navigate('CalendarView')}
-          />
-          <Button
-            icon={
-              <Icon
-                name="plus-square"
-                type='font-awesome'
-                size={15}
-                color="white"
-              />
-            }
-
-          />
-          <Notify />
-        </View>
+          <View style={{ flexDirection: 'row' }}>
+            {this.generateDot(this.state.companions.length+1)}
+          </View>
       </View>
     );
   }
 }
 
+class FeedView extends Component {
+  render() {
+    return (
+      <Text>Feed</Text>
+    );
+  }
+}
+class Friends extends Component {
+  render() {
+    return (
+      <Text>Friend List</Text>
+    );
+  }
+}
 
+const getTabBarIcon = (navigation, focused, tintColor) => {
+  const { routeName } = navigation.state;
+  let IconComponent = Icon;
+  let iconName;
+  switch (routeName) {
+    case 'Profile':
+      iconName = 'user';
+      break;
+    case 'Feed':
+      iconName = 'rss';
+      break;
+    case 'Calendar':
+      iconName = 'calendar';
+      break;
+    case 'Friends':
+      iconName = 'users';
+      break;
+  }
+  // You can return any component that you like here!
+  return <IconComponent name={iconName} size={25} color={tintColor} type="font-awesome" />;
+};
 
+const Tabs = createBottomTabNavigator(
+  {
+    Profile: {screen: UserDetailView},
+    Feed: {screen: FeedView},
+    Calendar: {screen: Calendar},
+    Friends: {screen: Friends},
+  },
+  {
+    initialRouteName: 'Profile',
+    defaultNavigationOptions: ({ navigation }) => ({
+      tabBarIcon: ({ focused, horizontal, tintColor }) => getTabBarIcon(navigation, focused, tintColor),
+    }),
+    tabBarOptions: {
+      activeTintColor: 'tomato',
+      inactiveTintColor: 'gray',
+    },
+  }
+);
 
 const RootStack = createStackNavigator(
   {
@@ -543,7 +657,7 @@ const RootStack = createStackNavigator(
   }
 );
 
-const AppContainer = createAppContainer(RootStack);
+const AppContainer = createAppContainer(Tabs);
 class App extends Component {
 
   render() {
@@ -560,13 +674,28 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: 40,
+    paddingBottom: 0,
   },
   container: {
-    marginTop: 25,
-    padding: 10
+    marginTop: 0,
+    padding: 0,
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-start'
+  },
+  loginContainer: {
+    flex: 3,
+    justifyContent: 'flex-end',
+    paddingBottom: 15
+  },
+  loginButtonContainer: {
+    flexDirection: 'row',
   },
   cardContainer: {
+    borderColor: '#255E69',
+    borderWidth: 5,
+    flex: 1,
+    justifyContent: 'space-between',
     width,
   },
   header: {
@@ -575,10 +704,41 @@ const styles = StyleSheet.create({
      color: '#A7383D',
      fontWeight: 'bold',
   },
+  detailsHeader: {
+     marginTop: 20,
+     fontSize: 25,
+     textAlign: 'center',
+     backgroundColor: '#255E69',
+     color: 'white',
+     fontWeight: 'bold',
+     textAlignVertical: 'center',
+
+     marginLeft: 20,
+     marginRight: 20,
+     borderTopLeftRadius: 7,
+     borderTopRightRadius: 7,
+     borderColor: '#012C34',
+     borderWidth: 2,
+  },
+  privateHeader: {
+     fontSize: 25,
+     textAlign: 'center',
+     color: 'white',
+     backgroundColor: '#A7383D',
+     fontWeight: 'bold',
+     textAlignVertical: 'center',
+     marginTop: 20,
+     marginLeft: 20,
+     marginRight: 20,
+     borderTopLeftRadius: 10,
+     borderTopRightRadius: 10,
+     borderColor: '#540004',
+     borderWidth: 2,
+
+  },
   headerWords: {
     fontSize: 25,
     textAlign: 'center',
-    padding: 20,
   },
   nav: {
     flexDirection: "row",
@@ -595,7 +755,116 @@ const styles = StyleSheet.create({
   topic: {
     textAlign: "center",
     fontSize: 15
+  },
+  profileListView: {
+    backgroundColor: '#012C34',
+    borderColor: '#012C34',
+    borderWidth: 10
+
+  },
+  profilePublicTitle: {
+    color: '#fff',
+    fontSize: 15,
+    textAlign: 'center',
+    fontWeight: 'bold'
+  },
+  profileTitle: {
+    color: '#540004',
+    fontSize: 15,
+    textAlign: 'center',
+  },
+  profileRightTitle: {
+    color: '#540004',
+    fontSize: 19,
+    fontWeight: 'bold',
+    textAlign: 'center',
+
+  },
+  profileSubtitleStyle: {
+      textAlign: 'center',
+      color: '#fff',
+  },
+  profilePublicRightTitle: {
+    color: '#fff',
+    fontSize: 19,
+    fontWeight: 'bold',
+    textAlign: 'center',
+
+  },
+  profilePublicContainer: {
+    marginLeft: 20,
+    marginRight: 20,
+    paddingTop: 5,
+    paddingBottom: 5,
+    borderWidth: 2,
+    borderColor: '#255E69',
+    backgroundColor: '#6A959D'
+
+  },
+  profilePrivateContentContainer: {
+    marginLeft: 20,
+    marginRight: 20,
+    paddingTop: 3,
+    paddingBottom: 3,
+    borderColor: '#A7383D',
+    backgroundColor: '#D1686E',
+    borderWidth: 2,
+    borderColor: '#A7383D',
+  },
+  profileContentContainer: {
+    flex: 1
+  },
+  profileRightContainer: {
+    flex: 2
+  },
+  logo:{
+    top: -50,
+    width: width,
+    marginTop: 0,
+    paddingTop: 0,
+  },
+  currentLocation:{
+    fontWeight: "bold", paddingTop: 7
+  },
+  location:{
+    fontWeight: "bold",
+    fontSize: 25,
+  },
+  buttonPanel:{
+    alignItems: 'center',
+    justifyContent: "space-around",
+    height: 50,
+    flexDirection: "row",
+    paddingBottom: 3,
+    width
+  },
+  bottomButton:{
+    backgroundColor: "#012C34"
+  },
+  detailButtonView:{
+    marginTop: 5,
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  detailButtonContainer:{
+    width: 150,
+    flex: 1
+  },
+  bottomButtonContainer:{
+    backgroundColor: '#012C34',
+    borderRadius: 4
+  },
+  iconContainer:{
+    marginLeft: 5,
+    paddingLeft: 5
+  },
+  spacer:{
+    flex: 1
+  },
+  spacer2:{
+    flex: 2
   }
+
 });
 
 export default App;
