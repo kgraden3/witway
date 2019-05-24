@@ -1,4 +1,5 @@
 {
   "name": "witway",
-  "displayName": "witway"
+  "displayName": "witway",
+  "senderID": "YOUR-GCM-ID"
 }

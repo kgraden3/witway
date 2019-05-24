@@ -1,12 +1,50 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, ActivityIndicator, ScrollView, AppRegistry, Dimensions, Animated } from "react-native";
+import { Alert, StyleSheet, Text, View, ActivityIndicator, ScrollView, AppRegistry, Dimensions, Animated } from "react-native";
 import { NativeRouter, Route, Link, Redirect, withRouter } from "react-router-native";
 import { CheckBox, Input, Image, ListItem, Header, Button, ButtonGroup, Overlay } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
+import { createStackNavigator, createAppContainer } from "react-navigation";
+
+import NotifService from './notifService';
+
+
 
 const { width } = Dimensions.get('window');
 const { height} = Dimensions.get('window');
 
+
+
+
+
+class Notify extends Component {
+  constructor(props) {
+    super(props);
+    this.notif = new NotifService(this.onRegister.bind(this), this.onNotif.bind(this));
+  }
+
+  onRegister(token) {
+    Alert.alert("Registered !", JSON.stringify(token));
+    console.log(token);
+    this.setState({ registerToken: token.token, gcmRegistered: true });
+  }
+
+  onNotif(notif) {
+    console.log(notif);
+    Alert.alert(notif.title, notif.message);
+  }
+  handlePerm(perms) {
+    Alert.alert("Permissions", JSON.stringify(perms));
+  }
+  render() {
+    return (
+      <Button
+        title="Notify"
+        onPress={() => { this.notif.localNotif() }}
+      />
+    );
+  }
+}
 
 const SignOut = withRouter(
   ({ history }) =>
@@ -77,7 +115,12 @@ class LoginForm extends Component {
 
   render() {
     if (this.state.userLoggedIn) {
-      return <UserDetailView username={this.state.username} />
+      return (
+        <UserDetailView
+          navigation={this.props.navigation}
+          username={this.state.username}
+        />
+      );
     }
     return (
       <View style={styles.container}>
@@ -135,7 +178,8 @@ class PrivacyChoice extends Component {
   }
 
   updateIndex(selectedIndex) {
-    this.setState({selectedIndex})
+    this.setState({selectedIndex});
+    this.props.onSelectChange(selectedIndex);
   }
 
   render() {
@@ -276,6 +320,7 @@ class UserDetailView extends React.Component {
       ],
       overlay: {
         isVisible: false,
+        id: '',
         private: false,
         label: '',
         value: '',
@@ -285,6 +330,8 @@ class UserDetailView extends React.Component {
     this.generateDot = this.generateDot.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.hideOverlay = this.hideOverlay.bind(this);
+    this.handleEdit = this.handleEdit.bind(this);
+    this.handleSelectChange = this.handleSelectChange.bind(this);
   }
 
 
@@ -297,6 +344,32 @@ class UserDetailView extends React.Component {
         private: data.private,
         label: data.label,
         value: data.value,
+        id: data.id,
+      }
+    });
+  }
+  handleSelectChange(index) {
+    this.setState({
+      overlay: {
+        ...this.state.overlay,
+        private: !index,
+      }
+    });
+  }
+  handleEdit() {
+    var details = this.state.user.details;
+    var index = details.findIndex((obj => obj.id == this.state.overlay.id));
+    details[index].label = this.state.overlay.label;
+    details[index].value = this.state.overlay.value;
+    details[index].private = this.state.overlay.private;
+    this.setState({
+      user: {
+        ...this.state.user,
+        details,
+      },
+      overlay: {
+        ...this.state.overlay,
+        isVisible: false,
       }
     });
   }
@@ -338,7 +411,7 @@ class UserDetailView extends React.Component {
                   title={v.label}
                   rightTitle={v.value}
                   subtitle={v.private?'Private':'Public'}
-                  onPress={e => this.handleClick(e, {label: v.label, value: v.value, private: v.private})}
+                  onPress={e => this.handleClick(e, {label: v.label, value: v.value, private: v.private, id: v.id})}
                 />
               ))}
             </View>
@@ -357,7 +430,9 @@ class UserDetailView extends React.Component {
             </View>
             <Overlay
               isVisible={this.state.overlay.isVisible}
-              windowBackgroundColor="rgba(255, 255, 255, .5)"
+              windowBackgroundColor="rgba(120, 120, 120, .8)"
+              overlayStyle={{ borderWidth: 1, borderStyle: 'solid', borderColor: '#c7c7cc'}}
+              borderRadius={5}
               width={width*.8}
               height="auto"
               onBackdropPress={this.hideOverlay}
@@ -367,10 +442,15 @@ class UserDetailView extends React.Component {
                 <Input
                   label={this.state.overlay.label}
                   value={this.state.overlay.value}
+                  onChangeText={text => this.setState({overlay: {...this.state.overlay, value: text}})}
                 />
-                <PrivacyChoice private={this.state.overlay.private} />
+                <PrivacyChoice
+                  onSelectChange={this.handleSelectChange}
+                  private={this.state.overlay.private}
+                />
                 <Button
                   title='Edit'
+                  onPress={this.handleEdit}
                 />
               </View>
             </Overlay>
@@ -429,6 +509,7 @@ class UserDetailView extends React.Component {
                 color="white"
               />
             }
+            onPress={() => this.props.navigation.navigate('CalendarView')}
           />
           <Button
             icon={
@@ -439,7 +520,9 @@ class UserDetailView extends React.Component {
                 color="white"
               />
             }
+
           />
+          <Notify />
         </View>
       </View>
     );
@@ -447,11 +530,25 @@ class UserDetailView extends React.Component {
 }
 
 
+
+
+const RootStack = createStackNavigator(
+  {
+    LoginView: LoginForm,
+    UserView: UserDetailView,
+    CalendarView: Calendar,
+  },
+  {
+    initialRouteName: 'LoginView',
+  }
+);
+
+const AppContainer = createAppContainer(RootStack);
 class App extends Component {
 
   render() {
     return (
-      <LoginForm />
+      <AppContainer />
     );
   }
 }
