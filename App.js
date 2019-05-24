@@ -1,23 +1,12 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, Button, ActivityIndicator, ScrollView, AppRegistry, Dimensions, Animated } from "react-native";
+import { StyleSheet, Text, View, ActivityIndicator, ScrollView, AppRegistry, Dimensions, Animated } from "react-native";
 import { NativeRouter, Route, Link, Redirect, withRouter } from "react-router-native";
-import { CheckBox, Input, Image, ListItem, Header } from 'react-native-elements';
+import { CheckBox, Input, Image, ListItem, Header, Button, ButtonGroup, Overlay } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const { width } = Dimensions.get('window');
 const { height} = Dimensions.get('window');
 
-const fakeAuth = {
-  isAuthenticated: false,
-  authenticate(cb) {
-    this.isAuthenticated = true;
-    setTimeout(cb, 100); // fake async
-  },
-  signout(cb) {
-    this.isAuthenticated = false;
-    setTimeout(cb, 100);
-  }
-};
 
 const SignOut = withRouter(
   ({ history }) =>
@@ -34,25 +23,61 @@ const SignOut = withRouter(
     )
 );
 
-class LoginView extends React.Component {
-  state = {
-    checked: false,
-    userLoggedIn: false,
-  };
+class LoginForm extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      age_checked: false,
+      username: '',
+      password: '',
+      userLoggedIn: false,
+      error: {
+        username: '',
+        password: '',
+        age: '',
+      }
+    };
+    this.login = this.login.bind(this);
+    this.handleAge = this.handleAge.bind(this);
+    this.handleUsername = this.handleUsername.bind(this);
+    this.handlePassword = this.handlePassword.bind(this);
+  }
+  componentDidUpdate() {
 
-  login = () => {
-    fakeAuth.authenticate(() => {
+  }
+  login() {
+    if (this.state.age_checked && this.state.username && this.state.password) {
       this.setState({ userLoggedIn: true });
-    });
+    }
   };
+  handleAge() {
+    if (!this.state.age_checked) {
+      this.setState({ error: { ...this.state.error, age: 'Please verify your age' } });
+      return false;
+    } else {
+      this.setState({ error: { ...this.state.error, age: '' } });
+      return true;
+    }
+  }
+  handleUsername() {
+    if (!this.state.username) {
+      this.setState({ error: {...this.state.error, username: 'Please enter your username'}});
+    } else {
+      this.setState({ error: {...this.state.error, username: ''}});
+    }
+  }
 
+  handlePassword() {
+    if (!this.state.password) {
+      this.setState({ error: {...this.state.error, password: 'Please enter your password'}});
+    } else {
+      this.setState({ error: {...this.state.error, password: ''}});
+    }
+  }
 
   render() {
-    //const { from } = this.props.location.state || { from: { pathname: "/" } };
-    const { userLoggedIn } = this.state;
-
-    if (userLoggedIn) {
-      return <UserDetailView />;
+    if (this.state.userLoggedIn) {
+      return <UserDetailView username={this.state.username} />
     }
     return (
       <View style={styles.container}>
@@ -66,30 +91,32 @@ class LoginView extends React.Component {
           placeholder=' User Name'
           leftIcon={{ type: 'font-awesome',  color: '#0F444F', name: 'user' }}
           errorStyle={{ color: 'red' }}
+          errorMessage={this.state.error.username}
+          onChangeText={(username) => this.setState({username})}
+          onBlur={this.handleUsername}
         />
         <Input
           placeholder=' Password'
           secureTextEntry={true}
           leftIcon={{ type: 'font-awesome', color: '#0F444F', name: 'lock' }}
           errorStyle={{ color: 'red' }}
-        />
-        <Input
-          placeholder=' Email'
-          leftIcon={{ type: 'font-awesome',  color: '#0F444F', name: 'envelope' }}
-          errorStyle={{ color: 'red' }}
+          errorMessage={this.state.error.password}
+          onChangeText={(password) => this.setState({password})}
+          onBlur={this.handlePassword}
         />
 
         <CheckBox
           center
           title='I am at least 18 years or older'
-          checked={this.state.checked}
+          checked={this.state.age_checked}
           checkedColor='#255E69'
-          onPress={() => this.setState({ checked: !this.state.checked })}
+          onPress={() => {this.setState({ age_checked: !this.state.age_checked }, this.handleAge)}}
         />
+        <Text style={ {color: 'red' } }>{this.state.error.age}</Text>
         <Button
-          title="Create"
+          title="Login"
           color="#841584"
-          accessibilityLabel="Create a new user now"
+          accessibilityLabel="Login Now"
           onPress={this.login}
         />
       </View>
@@ -97,66 +124,190 @@ class LoginView extends React.Component {
   }
 }
 
+class PrivacyChoice extends Component {
+  constructor(props) {
+    super(props)
+    let index = this.props.private?0:1;
+    this.state = {
+      selectedIndex: index
+    }
+    this.updateIndex = this.updateIndex.bind(this)
+  }
 
+  updateIndex(selectedIndex) {
+    this.setState({selectedIndex})
+  }
+
+  render() {
+    const buttons = ['Private', 'Public']
+    const { selectedIndex } = this.state
+
+    return (
+      <ButtonGroup
+        onPress={this.updateIndex}
+        selectedIndex={selectedIndex}
+        buttons={buttons}
+        containerStyle={{height: 30}}
+      />
+    )
+  }
+}
+class DetailList extends Component {
+  constructor(props) {
+    super(props);
+
+  }
+
+  handleClick
+  render() {
+    return (
+      <ListItem
+        key={this.props.key}
+        order={this.props.order}
+        title={this.props.title}
+        rightTitle={this.props.rightTitle}
+        subtitle={this.props.subtitle}
+        onPress={this.handleClick}
+      />
+    );
+  }
+}
 class UserDetailView extends React.Component {
-  state = {
-    users: [
+  constructor(props) {
+    super(props);
+    // get user details
+    const username = this.props.username;
+    // function to get user details based on username
+
+    // set user details data to state
+
+    // get a list of companions
+
+    this.state = {
+      user:
       {
-        id: '1',
-        username: 'Your User Name',
-        location: 'London, UK',
-        location_status: 'private',
-        details: {
-          first_name: 'John',
-          last_name: 'Doe',
-          email: 'example@example.com',
-          address: '1200 Pennsylvania Ave',
-          ocupation: '-',
-          note: '-',
+        id: 1,
+        username: 'username',
+        location: {
+          value: 'location',
+          private: false,
         },
+        public_profile_pic: './assets/images/Header-Icon-User.png',
+        details: [
+          {
+            id: 1,
+            order: 1,
+            label: 'First Name',
+            value: 'John',
+            private: false,
+          },
+          {
+            id: 2,
+            order: 2,
+            label: 'Last Name',
+            value: 'Doe',
+            private: false,
+          },
+        ],
         custom_details: [
           {
-            id: '123',
+            id: 1,
+            order: 1,
             label: 'custom1',
-            value: 'value1',
+            value: 'customval1',
+            private: false,
           },
-          {
-            id: '456',
-            label: 'custom2',
-            value: 'value2',
-          },
-        ]
+        ],
+
+
       },
-      {
-        id: '2',
-        username: 'Companion User Name',
-        location: 'NYC, NY',
-        location_status: 'Public',
-        details: {
-          first_name: 'Alice',
-          last_name: 'Lee',
-          email: 'example@example.com',
-          address: '1200 Pennsylvania Ave',
-          ocupation: '-',
-          note: '-',
+      companions:
+      [
+        {
+          id: 1,
+          username: 'companion username',
+          location: {
+            value: 'location',
+            private: true,
+          },
+          public_profile_pic: './assets/images/Header-Icon-User.png',
+          details: [
+            {
+              id: 1,
+              order: 1,
+              label: 'First Name',
+              value: 'John',
+              private: false,
+            },
+            {
+              id: 2,
+              order: 2,
+              label: 'Last Name',
+              value: 'Doe',
+              private: false,
+            },
+          ],
         },
-        custom_details: [
-          {
-            id: '790',
-            label: 'custom1',
-            value: 'value1',
+        {
+          id: 2,
+          username: 'companion username2',
+          location: {
+            value: 'location',
+            private: false,
           },
-          {
-            id: '333',
-            label: 'custom2',
-            value: 'value2',
-          },
-        ]
+          public_profile_pic: './assets/images/Header-Icon-User.png',
+          details: [
+            {
+              id: 1,
+              order: 1,
+              label: 'First Name',
+              value: 'John',
+              private: false,
+            },
+            {
+              id: 2,
+              order: 2,
+              label: 'Last Name',
+              value: 'Doe',
+              private: false,
+            },
+          ],
+        }
+      ],
+      overlay: {
+        isVisible: false,
+        private: false,
+        label: '',
+        value: '',
       }
-    ],
-  };
+    }
+
+    this.generateDot = this.generateDot.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+    this.hideOverlay = this.hideOverlay.bind(this);
+  }
+
+
   scrollX = new Animated.Value(0);
 
+  handleClick(e, data) {
+    this.setState({
+      overlay: {
+        isVisible: !this.state.overlay.isVisible,
+        private: data.private,
+        label: data.label,
+        value: data.value,
+      }
+    });
+  }
+  hideOverlay() {
+    this.setState({
+      overlay: {
+        ...this.state.overlay,
+        isVisible: false,
+      }
+    });
+  }
   userCard(user) {
       return (
         <View key={user.id} style={styles.cardContainer}>
@@ -172,34 +323,85 @@ class UserDetailView extends React.Component {
             />
             <View>
               <Text>Current Location</Text>
-              <Text>{user.location}</Text>
-              <Text>{user.location_status}</Text>
+              <Text>{user.location.value}</Text>
+              <Text>{user.location.private?'Private':'Public'}</Text>
             </View>
           </View>
-          <View>
-            <Text style={styles.header}>Details</Text>
-            <View>
-              <ListItem key='1' title='First Name' rightTitle={user.details.first_name} />
-              <ListItem key='2' title='Last Name' rightTitle={user.details.last_name} />
-              <ListItem key='3' title='Email' rightTitle={user.details.email} />
-              <ListItem key='4' title='Address' rightTitle={user.details.address} />
-              <ListItem key='5' title='Ocupation' rightTitle={user.details.ocupation} />
-              <ListItem key='6' title='Note' rightTitle={user.details.note} />
+
+          <Text style={styles.header}>Details</Text>
+          <View style={styles.userDetailsContainer}>
+            <View style={styles.userDetails}>
+              {user.details.map((v, i) => (
+                <ListItem
+                  key={v.id}
+                  order={v.order}
+                  title={v.label}
+                  rightTitle={v.value}
+                  subtitle={v.private?'Private':'Public'}
+                  onPress={e => this.handleClick(e, {label: v.label, value: v.value, private: v.private})}
+                />
+              ))}
             </View>
-            {user.custom_details.map((detail, i) => (
-              <ListItem
-                key={detail.id}
-                title={detail.label}
-                rightTitle={detail.value}
-              />
-            ))}
+            <View style={styles.customUserDetails}>
+              {
+                user.custom_details?user.custom_details.map((v, i) => (
+                  <ListItem
+                    key={v.id}
+                    order={v.order}
+                    title={v.label}
+                    rightTitle={v.value}
+                    subtitle={v.private?'Private':'Public'}
+                  />
+                )):false
+              }
+            </View>
+            <Overlay
+              isVisible={this.state.overlay.isVisible}
+              windowBackgroundColor="rgba(255, 255, 255, .5)"
+              width={width*.8}
+              height="auto"
+              onBackdropPress={this.hideOverlay}
+            >
+              <View>
+                <Text>Edit Details</Text>
+                <Input
+                  label={this.state.overlay.label}
+                  value={this.state.overlay.value}
+                />
+                <PrivacyChoice private={this.state.overlay.private} />
+                <Button
+                  title='Edit'
+                />
+              </View>
+            </Overlay>
           </View>
         </View>
       );
 
   }
-  render() {
+  generateDot(times) {
+    if (times === 1) {
+      return;
+    }
     let position = Animated.divide(this.scrollX, width);
+    let dots = [];
+    for (let i=0; i<times; i++) {
+      let opacity = position.interpolate({
+        inputRange: [i - 1, i, i + 1],
+        outputRange: [0.3, 1, 0.3],
+        extrapolate: 'clamp'
+      });
+      dots.push(
+        <Animated.View
+          key={i}
+          style={{ opacity, height: 10, width: 10, backgroundColor: '#595959', margin: 8, borderRadius: 5 }}
+        />
+      );
+    }
+    return dots;
+
+  }
+  render() {
     return (
       <View style={styles.wrapper}>
         <ScrollView
@@ -211,23 +413,33 @@ class UserDetailView extends React.Component {
           )}
           scrollEventThrottle={16}
         >
-          {this.state.users.map(item => (this.userCard(item)))}
+          {this.userCard(this.state.user)}
+          {this.state.companions.map(c => (this.userCard(c)))}
         </ScrollView>
         <View style={{ flexDirection: 'row' }}>
-          {this.state.users.map((_, i) => {
-            let opacity = position.interpolate({
-              inputRange: [i - 1, i, i + 1],
-              outputRange: [0.3, 1, 0.3],
-              extrapolate: 'clamp' // this will prevent the opacity of the dots from going outside of the outputRange (i.e. opacity will not be less than 0.3)
-            });
-            return (
-              <Animated.View
-                key={i}
-                style={{ opacity, height: 10, width: 10, backgroundColor: '#595959', margin: 8, borderRadius: 5 }}
+          {this.generateDot(this.state.companions.length+1)}
+        </View>
+        <View>
+          <Button
+            icon={
+              <Icon
+                name="calendar"
+                type='font-awesome'
+                size={15}
+                color="white"
               />
-            );
-
-          })}
+            }
+          />
+          <Button
+            icon={
+              <Icon
+                name="plus-square"
+                type='font-awesome'
+                size={15}
+                color="white"
+              />
+            }
+          />
         </View>
       </View>
     );
@@ -239,7 +451,7 @@ class App extends Component {
 
   render() {
     return (
-      <LoginView />
+      <LoginForm />
     );
   }
 }
