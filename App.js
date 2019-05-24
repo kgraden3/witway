@@ -6,7 +6,6 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import { createStackNavigator, createBottomTabNavigator, createAppContainer } from "react-navigation";
 
-import NotifService from './notifService';
 
 
 
@@ -15,36 +14,6 @@ const { height} = Dimensions.get('window');
 
 
 
-
-
-class Notify extends Component {
-  constructor(props) {
-    super(props);
-    this.notif = new NotifService(this.onRegister.bind(this), this.onNotif.bind(this));
-  }
-
-  onRegister(token) {
-    Alert.alert("Registered !", JSON.stringify(token));
-    console.log(token);
-    this.setState({ registerToken: token.token, gcmRegistered: true });
-  }
-
-  onNotif(notif) {
-    console.log(notif);
-    Alert.alert(notif.title, notif.message);
-  }
-  handlePerm(perms) {
-    Alert.alert("Permissions", JSON.stringify(perms));
-  }
-  render() {
-    return (
-      <Button
-        title="Notify"
-        onPress={() => { this.notif.localNotif() }}
-      />
-    );
-  }
-}
 
 const SignOut = withRouter(
   ({ history }) =>
