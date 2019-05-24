@@ -62,9 +62,8 @@ class LoginForm extends Component {
 
   }
   login() {
-    if (this.state.age_checked && this.state.username && this.state.password) {
       this.setState({ userLoggedIn: true });
-    }
+
   };
   handleAge() {
     if (!this.state.age_checked) {
@@ -128,78 +127,245 @@ class LoginForm extends Component {
             onPress={() => {this.setState({ age_checked: !this.state.age_checked }, this.handleAge)}}
           />
           <Text style={ {color: 'red' } }>{this.state.error.age}</Text>
-          <Button
-            title="Login"
-            color="#255E69"
-            accessibilityLabel="Login Now"
-            onPress={this.login}
-          />
+
+
+          <View style={styles.loginButtonContainer}>
+            <View style={styles.spacer}></View>
+            <View style={styles.spacer2}>
+              <Button
+                title="Login"
+                accessibilityLabel="Login Now"
+                onPress={this.login}
+                buttonStyle={{backgroundColor: '#255E69'}}
+              />
+            </View>
+            <View style={styles.spacer}></View>
+          </View>
+
+
         </View>
       </View>
     );
   }
 }
 
+class PrivacyChoice extends Component {
+  constructor(props) {
+    super(props)
+    let index = this.props.private?0:1;
+    this.state = {
+      selectedIndex: index
+    }
+    this.updateIndex = this.updateIndex.bind(this)
+  }
 
+  updateIndex(selectedIndex) {
+    this.setState({selectedIndex})
+  }
+
+  render() {
+    const buttons = ['Private', 'Public']
+    const { selectedIndex } = this.state
+
+    return (
+      <ButtonGroup
+        onPress={this.updateIndex}
+        selectedIndex={selectedIndex}
+        buttons={buttons}
+        containerStyle={{height: 30}}
+      />
+    )
+  }
+}
+class DetailList extends Component {
+  constructor(props) {
+    super(props);
+
+  }
+
+  handleClick
+  render() {
+    return (
+      <ListItem
+        key={this.props.key}
+        order={this.props.order}
+        title={this.props.title}
+        rightTitle={this.props.rightTitle}
+        subtitle={this.props.subtitle}
+        onPress={this.handleClick}
+      />
+    );
+  }
+}
 class UserDetailView extends React.Component {
-  state = {
-    users: [
+  constructor(props) {
+    super(props);
+    // get user details
+    const username = this.props.username;
+    // function to get user details based on username
+
+    // set user details data to state
+
+    // get a list of companions
+
+    this.state = {
+      user:
       {
-        id: '1',
-        username: 'Your User Name',
-        location: 'London, UK',
-        location_status: 'private',
-        details: {
-          first_name: 'John',
-          last_name: 'Doe',
-          email: 'joedoe@gmail.com',
-          address: '1200 Pennsylvania Ave, 22041',
-          occupation: 'Writer',
-          note: '-',
+        id: 1,
+        username: 'LeeJen',
+        location: {
+          value: 'Birmingham, AL',
+          private: false,
         },
+        public_profile_pic: './assets/images/Header-Icon-User.png',
+        details: [
+          {
+            id: 1,
+            order: 1,
+            label: 'First Name',
+            value: 'Leeroy',
+            private: false,
+          },
+          {
+            id: 2,
+            order: 2,
+            label: 'Last Name',
+            value: 'Jenkins',
+            private: false,
+          },
+          {
+            id: 3,
+            order: 3,
+            label: 'Occupation',
+            value: 'Graphic Designer',
+            private: false,
+          },
+          {
+            id: 4,
+            order: 4,
+            label: 'Address',
+            value: '125 Main Street',
+            private: true,
+          },
+          {
+            id: 5,
+            order: 5,
+            label: 'Email',
+            value: 'leeeeeeroy@gmail.com',
+            private: true,
+          },
+        ],
         custom_details: [
           {
-            id: '123',
-            label: 'custom1',
-            value: 'value1',
+            id: 1,
+            order: 1,
+            label: 'Favorite Color',
+            value: 'Teal',
+            private: false,
           },
-          {
-            id: '456',
-            label: 'custom2',
-            value: 'value2',
-          },
-        ]
+        ],
       },
-      {
-        id: '2',
-        username: 'Companion User Name',
-        location: 'NYC, NY',
-        location_status: 'Public',
-        details: {
-          first_name: 'Alice',
-          last_name: 'Lee',
-          email: 'alice@alicelee.com',
-          address: '123 Main Street, 54203',
-          occupation: 'Graphic Designer',
-          note: '-',
+      companions:
+      [
+        {
+          id: 1,
+          username: 'Companion #1',
+          location: {
+            value: 'Birmingham, AL',
+            private: false,
+          },
+          public_profile_pic: './assets/images/user-red.png',
+          details: [
+            {
+              id: 1,
+              order: 1,
+              label: 'First Name',
+              value: 'Juan',
+              private: false,
+            },
+            {
+              id: 2,
+              order: 2,
+              label: 'Last Name',
+              value: 'Henrique',
+              private: false,
+            },
+            {
+              id: 3,
+              order: 3,
+              label: 'Occupation',
+              value: 'Developer',
+              private: false,
+            },
+          ],
         },
-        custom_details: [
-          {
-            id: '790',
-            label: 'custom1',
-            value: 'value1',
+        {
+          id: 2,
+          username: 'Companion #2',
+          location: {
+            value: 'Tokyo, Japan',
+            private: false,
           },
-          {
-            id: '333',
-            label: 'custom2',
-            value: 'value2',
-          },
-        ]
+          public_profile_pic: './assets/images/user-red.png',
+          details: [
+            {
+              id: 1,
+              order: 1,
+              label: 'First Name',
+              value: 'Alice',
+              private: false,
+            },
+            {
+              id: 2,
+              order: 2,
+              label: 'Last Name',
+              value: 'Walker',
+              private: false,
+            },
+            {
+              id: 3,
+              order: 3,
+              label: 'Email',
+              value: 'awalker@reed.edu',
+              private: false,
+            },
+          ],
+        }
+      ],
+      overlay: {
+        isVisible: false,
+        private: false,
+        label: '',
+        value: '',
       }
-    ],
-  };
+    }
+
+    this.generateDot = this.generateDot.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+    this.hideOverlay = this.hideOverlay.bind(this);
+  }
+
+
   scrollX = new Animated.Value(0);
 
+  handleClick(e, data) {
+    this.setState({
+      overlay: {
+        isVisible: !this.state.overlay.isVisible,
+        private: data.private,
+        label: data.label,
+        value: data.value,
+      }
+    });
+  }
+  hideOverlay() {
+    this.setState({
+      overlay: {
+        ...this.state.overlay,
+        isVisible: false,
+      }
+    });
+  }
   userCard(user) {
       return (
         <View key={user.id} style={styles.cardContainer}>
@@ -215,132 +381,127 @@ class UserDetailView extends React.Component {
               PlaceholderContent={<ActivityIndicator />}
             />
             <View style={{padding: 5, paddingLeft: 15}}>
-              <Text style={{fontWeight: "bold", paddingTop: 7}}>Current Location:</Text>
-              <Text  style={{fontSize: 25}}>{user.location} [{user.location_status}]</Text>
+              <Text style={styles.currentLocation}>Current Location:</Text>
+                <Text style={styles.location}>{user.location.value}</Text>
+                <Text>{user.location.private?'Private':'Public'}</Text>
+
+
             </View>
           </View>
-          <ScrollView >
-            <Text style={styles.publicHeader}>Public Details</Text>
-            <View styles={styles.profileListView}>
-
-              <ListItem
-                title="First Name"
-                titleStyle={styles.profilePublicTitle}
-                rightTitleStyle={styles.profilePublicRightTitle}
-                rightTitle={user.details.first_name}
-                containerStyle={styles.profilePublicContainer}
-                rightContentContainerStyle={styles.profileRightContainer}
-                contentContainerStyle={styles.profileContentContainer}
-                key='1'
-                leftAvatar={<Avatar
-                                 icon={{name: 'bars', color: '#012C34', type: 'font-awesome'}}
-                                 size="small"
-                                 overlayContainerStyle={{backgroundColor: '#6A959D'}}
-                                 onPress={() => console.log("Works!")}
-                                 activeOpacity={0.7}
-                                 rounded
-                />}
-              />
-              <ListItem
-                title="Last Name"
-                titleStyle={styles.profilePublicTitle}
-                rightTitleStyle={styles.profilePublicRightTitle}
-                rightTitle={user.details.last_name}
-                containerStyle={styles.profilePublicContainer}
-                rightContentContainerStyle={styles.profileRightContainer}
-                contentContainerStyle={styles.profileContentContainer}
-                key='2'
-                leftAvatar={<Avatar
-                                 icon={{name: 'bars', color: '#012C34', type: 'font-awesome'}}
-                                 size="small"
-                                 overlayContainerStyle={{backgroundColor: '#6A959D'}}
-                                 onPress={() => console.log("Works!")}
-                                 activeOpacity={0.7}
-                                 rounded
-                />}
-              />
-              <ListItem
-                title="Occupation"
-                titleStyle={styles.profilePublicTitle}
-                rightTitleStyle={styles.profilePublicRightTitle}
-                rightTitle={user.details.occupation}
-                containerStyle={styles.profilePublicContainer}
-                contentContainerStyle={styles.profileContentContainer}
-                rightContentContainerStyle={styles.profileRightContainer}
-                key='5'
-                leftAvatar={<Avatar
-                                 icon={{name: 'bars', color: '#012C34', type: 'font-awesome'}}
-                                 size="small"
-                                 overlayContainerStyle={{backgroundColor: '#6A959D'}}
-                                 onPress={() => console.log("Works!")}
-                                 activeOpacity={0.7}
-                                 rounded
-                />}
-              />
-
-          </View>
-            <Text style={styles.privateHeader}>Private Details</Text>
-            <View styles={styles.profileListView}>
-            <ListItem
-              title="Address"
-              titleStyle={styles.profileTitle}
-              rightTitleStyle={styles.profileRightTitle}
-              rightTitle={user.details.address}
-              containerStyle={styles.profilePrivateContainer}
-              contentContainerStyle={styles.profileContentContainer}
-              rightContentContainerStyle={styles.profileRightContainer}
-              key='4'
-              leftAvatar={<Avatar
-                               icon={{name: 'bars', color: '#540004', type: 'font-awesome'}}
-                               size="small"
-                               overlayContainerStyle={{backgroundColor: '#F8A7AB'}}
-                               onPress={() => console.log("Works!")}
-                               activeOpacity={0.7}
-                               rounded
-              />}
-            />
-            <ListItem
-              title="Email"
-              titleStyle={styles.profileTitle}
-              rightTitleStyle={styles.profileRightTitle}
-              rightTitle={user.details.email}
-              containerStyle={styles.profilePrivateContainer}
-              contentContainerStyle={styles.profileContentContainer}
-              rightContentContainerStyle={styles.profileRightContainer}
-              key='3'
-              leftAvatar={<Avatar
-                               icon={{name: 'bars', color: '#540004', type: 'font-awesome'}}
-                               size="small"
-                               overlayContainerStyle={{backgroundColor: '#F8A7AB'}}
-                               onPress={() => console.log("Dragging!")}
-                               activeOpacity={0.7}
-                               rounded
-              />}
-            />
+          <ScrollView>
+            <Text style={styles.detailsHeader}>Details</Text>
+            <View style={styles.userDetailsContainer}>
+              <View style={styles.userDetails}>
+                {user.details.map((v, i) => (
+                  <ListItem
+                    titleStyle={styles.profilePublicTitle}
+                    rightTitleStyle={styles.profilePublicRightTitle}
+                    rightTitle={user.details.occupation}
+                    containerStyle={v.private?styles.profilePrivateContentContainer:styles.profilePublicContainer}
+                    contentContainerStyle={styles.profileContentContainer}
+                    rightContentContainerStyle={styles.profileRightContainer}
+                    subtitleStyle={styles.profileSubtitleStyle}
+                    key={v.id}
+                    order={v.order}
+                    title={v.label}
+                    rightTitle={v.value}
+                    subtitle={v.private?'Private':'Public'}
+                    onPress={e => this.handleClick(e, {label: v.label, value: v.value, private: v.private})}
+                  />
+                ))}
+                {
+                  user.custom_details?user.custom_details.map((v, i) => (
+                    <ListItem
+                      titleStyle={styles.profilePublicTitle}
+                      rightTitleStyle={styles.profilePublicRightTitle}
+                      rightTitle={user.details.occupation}
+                      containerStyle={styles.profilePublicContainer}
+                      contentContainerStyle={styles.profileContentContainer}
+                      rightContentContainerStyle={styles.profileRightContainer}
+                      subtitleStyle={styles.profileSubtitleStyle}
+                      key={v.id}
+                      order={v.order}
+                      title={v.label}
+                      rightTitle={v.value}
+                      subtitle={v.private?'Private':'Public'}
+                    />
+                  )):false
+                }
+                <View style={styles.detailButtonView}>
+                  <View style={{flex: 1}}/>
+                  <Button
+                  style={{ flex: 1, padding: 3 }}
+                  title="Add Detail &nbsp;"
+                  containerStyle={styles.detailButtonContainer}
+                  buttonStyle={styles.bottomButton}
+                  iconRight
+                    icon={
+                      <Icon
+                        name="plus-square"
+                        type='font-awesome'
+                        size={25}
+                        color= '#6A959D'
+                        iconStyle={styles.iconContainer}
+                      />
+                     }
+                    />
+                  <View style={{flex: 1}}/>
+                </View>
+              </View>
 
 
-
-            <Calendar
-              current={Date()}
-              minDate={Date()}
-              onDayPress={(day) => {console.log('selected day', day)}}
-            />
-
+            <Overlay
+              isVisible={this.state.overlay.isVisible}
+              windowBackgroundColor="rgba(255, 255, 255, .5)"
+              width={width*.8}
+              height="auto"
+              onBackdropPress={this.hideOverlay}
+            >
+              <View>
+                <Text>Edit Details</Text>
+                <Input
+                  label={this.state.overlay.label}
+                  value={this.state.overlay.value}
+                />
+                <PrivacyChoice private={this.state.overlay.private} />
+                <Button
+                  title='Edit'
+                />
+              </View>
+            </Overlay>
             </View>
-            {user.custom_details.map((detail, i) => (
-              <ListItem
-                key={detail.id}
-                title={detail.label}
-                rightTitle={detail.value}
-              />
-            ))}
+
+
           </ScrollView>
+
+
         </View>
       );
 
   }
-  render() {
+  generateDot(times) {
+    if (times === 1) {
+      return;
+    }
     let position = Animated.divide(this.scrollX, width);
+    let dots = [];
+    for (let i=0; i<times; i++) {
+      let opacity = position.interpolate({
+        inputRange: [i - 1, i, i + 1],
+        outputRange: [0.3, 1, 0.3],
+        extrapolate: 'clamp'
+      });
+      dots.push(
+        <Animated.View
+          key={i}
+          style={{ opacity, height: 10, width: 10, backgroundColor: '#595959', margin: 8, borderRadius: 5 }}
+        />
+      );
+    }
+    return dots;
+
+  }
+  render() {
     return (
       <View style={styles.wrapper}>
         <ScrollView
@@ -360,28 +521,76 @@ class UserDetailView extends React.Component {
           <View style={{ flexDirection: 'row' }}>
             {this.generateDot(this.state.companions.length+1)}
           </View>
-          <View>
-            <Button
-              icon={
-                <Icon
-                  name="calendar"
-                  type='font-awesome'
-                  size={15}
-                  color="white"
+
+            <View style={styles.buttonPanel}>
+              <Button
+                style={{ flex: 1 }}
+                containerStyle={styles.bottomButtonContainer}
+                buttonStyle={styles.bottomButton}
+                iconRight
+                title="Feed &nbsp; "
+                icon={
+                    <Icon
+                      name="rss"
+                      type='font-awesome'
+                      color= '#6A959D'
+                      size={25}
+                      containerStyle={styles.iconContainer}
+                     />
+                   }
                  />
-               }
-               />
-          <Button
-            icon={
-              <Icon
-                name="plus-square"
-                type='font-awesome'
-                size={15}
-                color="white"
-              />
-            }
-          />
-        </View>
+              <Button
+                style={{ flex: 1 }}
+                containerStyle={styles.bottomButtonContainer}
+                buttonStyle={styles.bottomButton}
+                iconRight
+                disabled
+                title="Calendar &nbsp; "
+                icon={
+                    <Icon
+                      name="calendar"
+                      type='font-awesome'
+                      color= '#6A959D'
+                      size={25}
+                      containerStyle={styles.iconContainer}
+                     />
+                   }
+                 />
+                 <Button
+                 style={{ flex: 1 }}
+                 title="Profile &nbsp;"
+                 disabled
+                 containerStyle={styles.bottomButtonContainer}
+                 buttonStyle={styles.bottomButton}
+                 iconRight
+                   icon={
+                     <Icon
+                       name="user"
+                       type='font-awesome'
+                       size={25}
+                       color= '#6A959D'
+                       containerStyle={styles.iconContainer}
+                     />
+                    }
+                   />
+                 <Button
+                   style={{ flex: 1 }}
+                   containerStyle={styles.bottomButtonContainer}
+                   buttonStyle={styles.bottomButton}
+                   iconRight
+                   disabled
+                   title="Friends &nbsp; "
+                   icon={
+                       <Icon
+                         name="users"
+                         type='font-awesome'
+                         color= '#6A959D'
+                         size={25}
+                         containerStyle={styles.iconContainer}
+                        />
+                      }
+                    />
+            </View>
       </View>
     );
   }
@@ -395,9 +604,6 @@ class App extends Component {
       <LoginForm />
     );
   }
-
-
-
 }
 
 
@@ -407,7 +613,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: 40,
+    paddingBottom: 0,
   },
   container: {
     marginTop: 0,
@@ -418,7 +624,11 @@ const styles = StyleSheet.create({
   },
   loginContainer: {
     flex: 3,
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
+    paddingBottom: 15
+  },
+  loginButtonContainer: {
+    flexDirection: 'row',
   },
   cardContainer: {
     borderColor: '#255E69',
@@ -434,7 +644,7 @@ const styles = StyleSheet.create({
      fontWeight: 'bold',
      fontFamily: 'Roboto',
   },
-  publicHeader: {
+  detailsHeader: {
      marginTop: 20,
      fontSize: 25,
      textAlign: 'center',
@@ -442,8 +652,7 @@ const styles = StyleSheet.create({
      color: 'white',
      fontWeight: 'bold',
      textAlignVertical: 'center',
-     paddingTop: 0,
-     marginTop: 0,
+
      marginLeft: 20,
      marginRight: 20,
      borderTopLeftRadius: 7,
@@ -499,7 +708,8 @@ const styles = StyleSheet.create({
   profilePublicTitle: {
     color: '#fff',
     fontSize: 15,
-    textAlign: 'center'
+    textAlign: 'center',
+    fontWeight: 'bold'
   },
   profileTitle: {
     color: '#540004',
@@ -512,6 +722,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
 
+  },
+  profileSubtitleStyle: {
+      textAlign: 'center',
+      color: '#fff',
   },
   profilePublicRightTitle: {
     color: '#fff',
@@ -530,13 +744,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#6A959D'
 
   },
-  profilePrivateContainer: {
+  profilePrivateContentContainer: {
     marginLeft: 20,
     marginRight: 20,
     paddingTop: 3,
     paddingBottom: 3,
     borderColor: '#A7383D',
-    backgroundColor: '#F8A7AB',
+    backgroundColor: '#D1686E',
     borderWidth: 2,
     borderColor: '#A7383D',
   },
@@ -551,6 +765,47 @@ const styles = StyleSheet.create({
     width: width,
     marginTop: 0,
     paddingTop: 0,
+  },
+  currentLocation:{
+    fontWeight: "bold", paddingTop: 7
+  },
+  location:{
+    fontWeight: "bold",
+    fontSize: 25,
+  },
+  buttonPanel:{
+    alignItems: 'center',
+    justifyContent: "space-around",
+    height: 50,
+    flexDirection: "row",
+    paddingBottom: 3,
+    width
+  },
+  bottomButton:{
+    backgroundColor: "#012C34"
+  },
+  detailButtonView:{
+    marginTop: 5,
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  detailButtonContainer:{
+    width: 150,
+    flex: 1
+  },
+  bottomButtonContainer:{
+    backgroundColor: '#012C34',
+    borderRadius: 4
+  },
+  iconContainer:{
+    marginLeft: 5,
+    paddingLeft: 5
+  },
+  spacer:{
+    flex: 1
+  },
+  spacer2:{
+    flex: 2
   }
 
 });
