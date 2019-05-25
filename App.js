@@ -1,19 +1,132 @@
 import React, { Component } from "react";
-import { Alert, StyleSheet, Text, View, ActivityIndicator, ScrollView, AppRegistry, Dimensions, Animated } from "react-native";
+import { Alert, StyleSheet, Text, View, ActivityIndicator, ScrollView, AppRegistry, Dimensions, Animated, Picker } from "react-native";
 import { NativeRouter, Route, Link, Redirect, withRouter } from "react-router-native";
 import { CheckBox, Input, Image, ListItem, Header, Button, Avatar, ButtonGroup, Overlay } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import { createStackNavigator, createBottomTabNavigator, createAppContainer } from "react-navigation";
-
-
-
+import DatePicker from 'react-native-datepicker';
 
 const { width } = Dimensions.get('window');
 const { height} = Dimensions.get('window');
 
+class Notify extends Component {
+  constructor(props) {
+    super(props);
+    this.notif = new NotifService(this.onRegister.bind(this), this.onNotif.bind(this));
+  }
 
+  onRegister(token) {
+    Alert.alert("Registered !", JSON.stringify(token));
+    console.log(token);
+    this.setState({ registerToken: token.token, gcmRegistered: true });
+  }
 
+  onNotif(notif) {
+    console.log(notif);
+    Alert.alert(notif.title, notif.message);
+  }
+  handlePerm(perms) {
+    Alert.alert("Permissions", JSON.stringify(perms));
+  }
+  render() {
+    return (
+      <Button
+        title="Notify"
+        onPress={() => { this.notif.localNotif() }}
+      />
+    );
+  }
+}
+class MyDatePicker extends Component {
+  constructor(props){
+    super(props)
+    this.state = {date:"2018-05-25"}
+  }
+
+  render(){
+    return (
+      <DatePicker
+        style={{width: 200}}
+        date={this.state.date}
+        mode="date"
+        placeholder="select date"
+        format="YYYY-MM-DD"
+        minDate="2019-01-01"
+        maxDate="2020-01-01"
+        confirmBtnText="Confirm"
+        cancelBtnText="Cancel"
+        customStyles={{
+          dateIcon: {
+            position: 'absolute',
+            left: 0,
+            top: 4,
+            marginLeft: 0
+          },
+          dateInput: {
+            marginLeft: 36
+          }
+          // ... You can check the source to find the other keys.
+        }}
+        onDateChange={(date) => {this.setState({date: date})}}
+      />
+    )
+  }
+}
+class StakeEth extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      nonprofit: 'oganization 1',
+      initiator: this.props.initiator,
+      recipient: this.props.recipient,
+    }
+
+    this.handleStake = this.handleStake.bind(this);
+  }
+
+  handleStake() {
+
+  }
+  render() {
+    return (
+
+      <View>
+        <View style={styles.modalHeaderContainer}>
+          <Text style={styles.modalHeaderText}>Arrange a Meeting</Text>
+        </View>
+
+        <Input
+          placeholder='Meeting Place'
+        />
+        <Input
+          placeholder='Amount of Ether to Stake'
+          keyboardType='numeric'
+        />
+        <Text style={{paddingTop: 7, paddingLeft: 13}}>If you fail to show up, your stake will go to...</Text>
+        <Picker
+          selectedValue={this.state.nonprofit}
+          style={{height: 50, marginLeft: 20}}
+          onValueChange={(itemValue, itemIndex) =>
+            this.setState({nonprofit: itemValue})
+          }>
+          <Picker.Item label="A Random Non-Profit" value="random" />
+          <Picker.Item label="Giveth" value="giveth" />
+          <Picker.Item label="Audobon Society" value="audobon" />
+          <Picker.Item label="UNICEF" value="unicef" />
+        </Picker>
+        <MyDatePicker style={{marginBottom: 7, paddingLeft: 40}} />
+        <Button
+          title="Suggest Meeting"
+          titleStyle={{color: '#fff'}}
+          buttonStyle={{backgroundColor: '#0F444F', marginLeft: 60, marginTop: 15, marginRight: 60}}
+          onPress={this.handleStake}
+        />
+      </View>
+    );
+  }
+}
 
 const SignOut = withRouter(
   ({ history }) =>
@@ -202,6 +315,33 @@ class DetailList extends Component {
     );
   }
 }
+
+class MyOverlay extends Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    return (
+      <Overlay
+        isVisible={this.props.visibility}
+        windowBackgroundColor="rgba(120, 120, 120, .5)"
+        overlayStyle={{ borderWidth: 1, borderStyle: 'solid', borderColor: '#c7c7cc'}}
+        borderRadius={5}
+        width={width*.8}
+        height="auto"
+        onBackdropPress={this.props.onBackdropPress}
+      >
+        {this.props.child}
+      </Overlay>
+    );
+  }
+}
+
+
+
+
+
+
 class UserDetailView extends React.Component {
   constructor(props) {
     super(props);
@@ -217,7 +357,7 @@ class UserDetailView extends React.Component {
       user:
       {
         id: 1,
-        username: 'LeeJen',
+        username: 'Leoric',
         location: {
           value: 'Birmingham, AL',
           private: false,
@@ -274,7 +414,7 @@ class UserDetailView extends React.Component {
       [
         {
           id: 1,
-          username: 'Companion #1',
+          username: 'Friend #1',
           location: {
             value: 'Birmingham, AL',
             private: false,
@@ -306,7 +446,7 @@ class UserDetailView extends React.Component {
         },
         {
           id: 2,
-          username: 'Companion #2',
+          username: 'Friend #2',
           location: {
             value: 'Tokyo, Japan',
             private: false,
@@ -343,19 +483,39 @@ class UserDetailView extends React.Component {
         private: false,
         label: '',
         value: '',
-      }
+      },
+      meeting: {
+        isVisible: false,
+      },
+      currentCompanion: '',
     }
-
+    this.friendCard = this.friendCard.bind(this);
+    this.userCard = this.userCard.bind(this);
     this.generateDot = this.generateDot.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.hideOverlay = this.hideOverlay.bind(this);
     this.handleEdit = this.handleEdit.bind(this);
+    this.handleMeeting = this.handleMeeting.bind(this);
+    this.hideMeeting = this.hideMeeting.bind(this);
     this.handleSelectChange = this.handleSelectChange.bind(this);
   }
 
 
   scrollX = new Animated.Value(0);
 
+  handleMeeting(pageid) {
+    var companions = this.state.companions;
+    let index = companions.findIndex((obj => obj.id == pageid));
+
+    let companion_username = this.state.companions[index].username;
+    this.setState({
+      meeting: {
+        ...this.state.meeting,
+        isVisible: true,
+      },
+      currentCompanion: companion_username,
+    });
+  }
   handleClick(e, data) {
     this.setState({
       overlay: {
@@ -400,13 +560,21 @@ class UserDetailView extends React.Component {
       }
     });
   }
+  hideMeeting() {
+    this.setState({
+      meeting: {
+        ...this.state.meeting,
+        isVisible: false,
+      },
+    });
+  }
   userCard(user) {
       return (
         <View key={user.id} style={styles.cardContainer}>
           <Header
-            containerStyle={{height: 40, marginTop: 0, paddingTop: 0, backgroundColor: '#255E69'}}
+            containerStyle={{height: 80, marginTop: 0,  backgroundColor: '#255E69'}}
             placement="center"
-            centerComponent={{ text: user.username, style: {fontSize:25,  paddingBottom: 3, textAlign: 'center', fontWeight: 'bold', color: '#fff' } }}
+            centerComponent={{ text: user.username + "'s Profile", style: {fontSize:25,  paddingBottom: 3, textAlign: 'center', fontWeight: 'bold', color: '#fff' } }}
           />
           <View style={{flexDirection: 'row', padding: 10, borderBottomWidth: 2, borderBottomColor: '#255E69'}}>
             <Image
@@ -481,44 +649,156 @@ class UserDetailView extends React.Component {
                 </View>
               </View>
 
-
-            <Overlay
-              isVisible={this.state.overlay.isVisible}
-              windowBackgroundColor="rgba(120, 120, 120, .5)"
-              overlayStyle={{ borderWidth: 1, borderStyle: 'solid', borderColor: '#c7c7cc'}}
-              borderRadius={5}
-              width={width*.8}
-              height="auto"
+            <MyOverlay
+              visibility={this.state.overlay.isVisible}
               onBackdropPress={this.hideOverlay}
-            >
-              <View>
-                <View style={styles.modalHeaderContainer}>
-                  <Text style={styles.modalHeaderText}>Edit {this.state.overlay.label}</Text>
+              child={
+                <View>
+                  <View style={styles.modalHeaderContainer}>
+                    <Text style={styles.modalHeaderText}>Edit {this.state.overlay.label}</Text>
+                  </View>
+                  <Input
+                    value={this.state.overlay.value}
+                    onChangeText={text => this.setState({overlay: {...this.state.overlay, value: text}})}
+                  />
+                  <PrivacyChoice
+                    onSelectChange={this.handleSelectChange}
+                    private={this.state.overlay.private}
+                  />
+                  <Button
+                    title='Change'
+                    buttonStyle={{backgroundColor: '#255E69', marginLeft: 50, marginRight: 50}}
+                    onPress={this.handleEdit}
+                  />
                 </View>
-                <Input
-                  value={this.state.overlay.value}
-                  onChangeText={text => this.setState({overlay: {...this.state.overlay, value: text}})}
-                />
-                <PrivacyChoice
-                  onSelectChange={this.handleSelectChange}
-                  private={this.state.overlay.private}
-                />
-                <Button
-                  title='Change'
-                  buttonStyle={{backgroundColor: '#012C34', marginLeft: 50, marginRight: 50}}
-                  onPress={this.handleEdit}
-                />
-              </View>
-            </Overlay>
+              }
+            />
             </View>
 
 
+
+
+
+
+
           </ScrollView>
-
-
-        </View>
+       </View>
       );
 
+  }
+  friendCard(user) {
+    return (
+      <View key={user.id} style={styles.cardContainer}>
+        <Header
+          containerStyle={{height: 40, marginTop: 0, paddingTop: 0, backgroundColor: '#255E69'}}
+          placement="center"
+          centerComponent={{ text: user.username, style: {fontSize:25,  paddingBottom: 3, textAlign: 'center', fontWeight: 'bold', color: '#fff' } }}
+        />
+        <View style={{flexDirection: 'row', padding: 10, borderBottomWidth: 2, borderBottomColor: '#255E69'}}>
+          <Image
+            style={{width: 100, height: 100}}
+            source={require('./assets/images/user-blue.png')}
+            PlaceholderContent={<ActivityIndicator />}
+          />
+          <View style={{padding: 5, paddingLeft: 15}}>
+            <Text style={styles.currentLocation}>Current Location:</Text>
+              <Text style={styles.location}>{user.location.value}</Text>
+              <Text>{user.location.private?'Private':'Public'}</Text>
+          </View>
+        </View>
+        <ScrollView>
+          <Text style={styles.detailsHeader}>Details</Text>
+          <View style={styles.userDetailsContainer}>
+            <View style={styles.userDetails}>
+              {user.details.map((v, i) => (
+                <ListItem
+                  titleStyle={styles.profilePublicTitle}
+                  rightTitleStyle={styles.profilePublicRightTitle}
+                  rightTitle={user.details.occupation}
+                  containerStyle={v.private?styles.profilePrivateContentContainer:styles.profilePublicContainer}
+                  contentContainerStyle={styles.profileContentContainer}
+                  rightContentContainerStyle={styles.profileRightContainer}
+                  subtitleStyle={styles.profileSubtitleStyle}
+                  key={v.id}
+                  order={v.order}
+                  title={v.label}
+                  rightTitle={v.value}
+                  subtitle={v.private?'Private':'Public'}
+                />
+              ))}
+              {
+                user.custom_details?user.custom_details.map((v, i) => (
+                  <ListItem
+                    titleStyle={styles.profilePublicTitle}
+                    rightTitleStyle={styles.profilePublicRightTitle}
+                    rightTitle={user.details.occupation}
+                    containerStyle={styles.profilePublicContainer}
+                    contentContainerStyle={styles.profileContentContainer}
+                    rightContentContainerStyle={styles.profileRightContainer}
+                    subtitleStyle={styles.profileSubtitleStyle}
+                    key={v.id}
+                    order={v.order}
+                    title={v.label}
+                    rightTitle={v.value}
+                    subtitle={v.private?'Private':'Public'}
+                  />
+                )):false
+              }
+
+
+              <View style={styles.friendButtonView}>
+                <Button
+                style={styles.friendButton}
+                title="Add Detail &nbsp;"
+                containerStyle={styles.detailButtonContainer}
+                buttonStyle={styles.bottomButton}
+                iconRight
+                  icon={
+                    <Icon
+                      name="plus-square"
+                      type='font-awesome'
+                      size={25}
+                      color= '#6A959D'
+                      iconStyle={styles.iconContainer}
+                    />
+                   }
+                  />
+                <Button
+                  style={styles.friendButton}
+                  title="Meet Up &nbsp;"
+                  onPress={() => this.handleMeeting(user.id)}
+                  containerStyle={styles.detailButtonContainer}
+                  buttonStyle={styles.bottomButton}
+                  iconRight
+                    icon={
+                      <Icon
+                        name="handshake-o"
+                        type='font-awesome'
+                        size={25}
+                        color= '#6A959D'
+                        iconStyle={styles.iconContainer}
+                      />
+                     }
+                />
+
+              </View>
+
+            </View>
+          </View>
+
+          <MyOverlay
+            child={
+              <StakeEth
+                initiator={this.state.user.username}
+                recipient={this.state.currentCompanion}
+              />
+            }
+            visibility={this.state.meeting.isVisible}
+            onBackdropPress={this.hideMeeting}
+          />
+        </ScrollView>
+      </View>
+    );
   }
   generateDot(times) {
     if (times === 1) {
@@ -555,7 +835,7 @@ class UserDetailView extends React.Component {
           scrollEventThrottle={16}
         >
           {this.userCard(this.state.user)}
-          {this.state.companions.map(c => (this.userCard(c)))}
+          {this.state.companions.map(c => (this.friendCard(c)))}
         </ScrollView>
           <View style={{ flexDirection: 'row' }}>
             {this.generateDot(this.state.companions.length+1)}
@@ -601,12 +881,25 @@ const getTabBarIcon = (navigation, focused, tintColor) => {
   // You can return any component that you like here!
   return <IconComponent name={iconName} size={25} color={tintColor} type="font-awesome" />;
 };
+class SpaceTime extends React.Component {
+  render() {
+    return (
+      <Agenda
+        selected={Date()}
+        renderEmptyDate={() => {return (<View />);}}
+      />
 
+
+
+
+    );
+  }
+}
 const Tabs = createBottomTabNavigator(
   {
     Profile: {screen: UserDetailView},
     Feed: {screen: FeedView},
-    Calendar: {screen: Calendar},
+    Calendar: {screen: SpaceTime},
     Friends: {screen: Friends},
   },
   {
@@ -621,16 +914,8 @@ const Tabs = createBottomTabNavigator(
   }
 );
 
-const RootStack = createStackNavigator(
-  {
-    LoginView: LoginForm,
-    UserView: UserDetailView,
-    CalendarView: Calendar,
-  },
-  {
-    initialRouteName: 'LoginView',
-  }
-);
+
+
 
 const AppContainer = createAppContainer(Tabs);
 class App extends Component {
@@ -687,7 +972,6 @@ const styles = StyleSheet.create({
      color: 'white',
      fontWeight: 'bold',
      textAlignVertical: 'center',
-
      marginLeft: 20,
      marginRight: 20,
      borderTopLeftRadius: 7,
@@ -709,7 +993,6 @@ const styles = StyleSheet.create({
      borderTopRightRadius: 10,
      borderColor: '#540004',
      borderWidth: 2,
-
   },
   headerWords: {
     fontSize: 25,
@@ -753,7 +1036,6 @@ const styles = StyleSheet.create({
     fontSize: 19,
     fontWeight: 'bold',
     textAlign: 'center',
-
   },
   profileSubtitleStyle: {
       textAlign: 'center',
@@ -764,7 +1046,6 @@ const styles = StyleSheet.create({
     fontSize: 19,
     fontWeight: 'bold',
     textAlign: 'center',
-
   },
   profilePublicContainer: {
     marginLeft: 20,
@@ -774,7 +1055,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#255E69',
     backgroundColor: '#6A959D'
-
   },
   profilePrivateContentContainer: {
     marginLeft: 20,
@@ -803,7 +1083,8 @@ const styles = StyleSheet.create({
   },
   location:{
     fontWeight: "bold",
-    fontSize: 25,
+    color: '#012C34',
+    fontSize: 30,
   },
   buttonPanel:{
     alignItems: 'center',
@@ -821,11 +1102,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
   },
+  friendButtonView:{
+    marginTop: 5,
+    paddingLeft: 40,
+    paddingRight: 40,
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
+  friendButton:{
+    flex: 1,
+    padding: 5,
+  },
   detailButtonContainer:{
+    padding: 5,
     width: 150,
     flex: 1
   },
-  bottomButtonContainer:{
+  buttonContainer:{
     backgroundColor: '#012C34',
     borderRadius: 4
   },
