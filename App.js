@@ -40,10 +40,14 @@ class Notify extends Component {
 }
 class MyDatePicker extends Component {
   constructor(props){
-    super(props)
-    this.state = {date:"2018-05-25"}
+    super(props);
+    this.state = {date:"2018-05-25"};
+    this.handleChange = this.handleChange.bind(this);
   }
-
+  handleChange(date) {
+    this.setState({date: date});
+    this.props.handleChange(date);
+  }
   render(){
     return (
       <DatePicker
@@ -68,11 +72,56 @@ class MyDatePicker extends Component {
           }
           // ... You can check the source to find the other keys.
         }}
-        onDateChange={(date) => {this.setState({date: date})}}
+        onDateChange={this.handleChange}
       />
     )
   }
 }
+
+
+class FeedView extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      messages: [
+        {
+          type: 'staking',
+          leftAvatar: '',
+          username: 'Ben',
+          message: 'Staked 500 Eth',
+        },
+      ],
+    }
+
+
+  }
+  componentDidMount() {
+    this.setState({messages: this.props.screenProps.feedMessages});
+  }
+  render() {
+
+    return (
+      <View>
+      <View style={styles.detailsHeader}>
+              <Text style={styles.headerText}>Feed</Text>
+      </View>
+        {this.state.messages.map((v, i) => (
+          <ListItem
+            titleStyle={styles.profilePublicTitle}
+            containerStyle={styles.profilePublicContainer}
+            contentContainerStyle={styles.profileContentContainer}
+            subtitleStyle={styles.profileSubtitleStyle}
+            key={i}
+            leftAvatar={{ source: require('./assets/images/witway-logo.png') }}
+            title={v.username}
+            subtitle={v.message}
+          />
+        ))}
+      </View>
+    );
+  }
+}
+
 class StakeEth extends Component {
   constructor(props) {
     super(props);
@@ -81,13 +130,33 @@ class StakeEth extends Component {
       nonprofit: 'oganization 1',
       initiator: this.props.initiator,
       recipient: this.props.recipient,
+      date: new Date(),
+      place: '',
+      amount: '',
     }
 
     this.handleStake = this.handleStake.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   handleStake() {
 
+
+    // show staked info in feed
+    var data = {
+      type: 'staking',
+      leftAvatar: './assets/images/witway-logo.png',
+      username: this.state.initiator,
+      message: this.state.initiator + ' staked ' + this.state.amount + ' to ' + this.state.recipient,
+    }
+    this.props.staked(data);
+    // interate with backend staking
+
+  }
+  handleChange(date) {
+    this.setState({
+      date
+    });
   }
   render() {
     return (
@@ -96,13 +165,16 @@ class StakeEth extends Component {
         <View style={styles.modalHeaderContainer}>
           <Text style={styles.modalHeaderText}>Arrange a Meeting</Text>
         </View>
-
         <Input
           placeholder='Meeting Place'
+          onChangeText={text => this.setState({place: text})}
+          value={this.state.place}
         />
         <Input
           placeholder='Amount of Ether to Stake'
-          keyboardType='numeric'
+            keyboardType='numeric'
+          onChangeText={text => this.setState({amount: text})}
+          value={this.state.amount}
         />
         <Text style={{paddingTop: 7, paddingLeft: 13}}>If you fail to show up, your stake will go to...</Text>
         <Picker
@@ -116,7 +188,7 @@ class StakeEth extends Component {
           <Picker.Item label="Audobon Society" value="audobon" />
           <Picker.Item label="UNICEF" value="unicef" />
         </Picker>
-        <MyDatePicker style={{marginBottom: 7, paddingLeft: 40}} />
+        <MyDatePicker     handleChange={this.handleChange} style={{marginBottom: 7, paddingLeft: 40}} />
         <Button
           title="Suggest Meeting"
           titleStyle={{color: '#fff'}}
@@ -489,6 +561,7 @@ class UserDetailView extends React.Component {
       },
       currentCompanion: '',
     }
+    this.handleStaked = this.handleStaked.bind(this);
     this.friendCard = this.friendCard.bind(this);
     this.userCard = this.userCard.bind(this);
     this.generateDot = this.generateDot.bind(this);
@@ -502,7 +575,11 @@ class UserDetailView extends React.Component {
 
 
   scrollX = new Animated.Value(0);
+  handleStaked(data) {
+    this.setState({meeting: {...this.state.meeting, isVisible: false}});
+    this.props.screenProps.addFeedMessages(data);
 
+  }
   handleMeeting(pageid) {
     var companions = this.state.companions;
     let index = companions.findIndex((obj => obj.id == pageid));
@@ -572,7 +649,7 @@ class UserDetailView extends React.Component {
       return (
         <View key={user.id} style={styles.cardContainer}>
           <Header
-            containerStyle={{height: 80, marginTop: 0,  backgroundColor: '#255E69'}}
+            containerStyle={{height: 50, marginTop: 0,  backgroundColor: '#255E69'}}
             placement="center"
             centerComponent={{ text: user.username + "'s Profile", style: {fontSize:25,  paddingBottom: 3, textAlign: 'center', fontWeight: 'bold', color: '#fff' } }}
           />
@@ -791,6 +868,7 @@ class UserDetailView extends React.Component {
               <StakeEth
                 initiator={this.state.user.username}
                 recipient={this.state.currentCompanion}
+                staked={(data) => this.handleStaked(data)}
               />
             }
             visibility={this.state.meeting.isVisible}
@@ -845,13 +923,7 @@ class UserDetailView extends React.Component {
   }
 }
 
-class FeedView extends Component {
-  render() {
-    return (
-      <Text>Feed</Text>
-    );
-  }
-}
+
 class Friends extends Component {
   render() {
     return (
@@ -884,12 +956,31 @@ const getTabBarIcon = (navigation, focused, tintColor) => {
 class SpaceTime extends React.Component {
   render() {
     return (
-      <Agenda
+      <ScrollView>
+      <Calendar
         selected={Date()}
-        renderEmptyDate={() => {return (<View />);}}
+        markedDates={{
+         '2019-5-26': {
+           periods: [
+             { startingDay: false, endingDay: true, color: '#5f9ea0' },
+             { startingDay: false, endingDay: true, color: '#ffa500' },
+             { startingDay: true, endingDay: false, color: '#f0e68c' },
+           ]
+         },
+         '2019-5-28': {
+           periods: [
+             { startingDay: true, endingDay: false, color: '#ffa500' },
+             { color: 'transparent' },
+             { startingDay: false, endingDay: false, color: '#f0e68c' },
+           ]
+         },
+       }}
       />
-
-
+      <Image  style={styles.logo}
+              resizeMode={'contain'}
+              source={require('./assets/images/agenda.png')}
+              />
+      </ScrollView>
 
 
     );
@@ -913,13 +1004,42 @@ const Tabs = createBottomTabNavigator(
     },
   }
 );
+class CustomNavigator extends Component {
+  static router = Tabs.router;
+  constructor(props) {
+    super(props);
+    this.state = {
+      messages: [],
+    };
+    this.addMessage = this.addMessage.bind(this);
+  }
+
+
+  addMessage(data) {
+    var messages = this.state.messages;
+    messages.push(data);
+    this.setState({
+      messages,
+    });
+  }
+  render() {
+    const { navigation } = this.props;
+    return (
+      <Tabs
+        navigation={navigation}
+        screenProps={{
+          addFeedMessages: this.addMessage,
+          feedMessages: this.state.messages,
+        }}
+      />
+    );
+  }
+}
 
 
 
-
-const AppContainer = createAppContainer(Tabs);
+const AppContainer = createAppContainer(CustomNavigator);
 class App extends Component {
-
   render() {
     return (
       <AppContainer />
@@ -1145,6 +1265,13 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 23,
     fontWeight: 'bold'
+  },
+  headerText:{
+    fontSize:25,
+    paddingBottom: 3,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    color: '#fff'
   }
 
 });
