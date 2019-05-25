@@ -1,10 +1,11 @@
 import React, { Component } from "react";
-import { Alert, StyleSheet, Text, View, ActivityIndicator, ScrollView, AppRegistry, Dimensions, Animated } from "react-native";
+import { Alert, StyleSheet, Text, View, ActivityIndicator, ScrollView, AppRegistry, Dimensions, Animated, Picker } from "react-native";
 import { NativeRouter, Route, Link, Redirect, withRouter } from "react-router-native";
 import { CheckBox, Input, Image, ListItem, Header, Button, Avatar, ButtonGroup, Overlay } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import { createStackNavigator, createBottomTabNavigator, createAppContainer } from "react-navigation";
+import DatePicker from 'react-native-datepicker';
 
 
 
@@ -13,8 +14,116 @@ const { width } = Dimensions.get('window');
 const { height} = Dimensions.get('window');
 
 
+class Notify extends Component {
+  constructor(props) {
+    super(props);
+    this.notif = new NotifService(this.onRegister.bind(this), this.onNotif.bind(this));
+  }
 
+  onRegister(token) {
+    Alert.alert("Registered !", JSON.stringify(token));
+    console.log(token);
+    this.setState({ registerToken: token.token, gcmRegistered: true });
+  }
 
+  onNotif(notif) {
+    console.log(notif);
+    Alert.alert(notif.title, notif.message);
+  }
+  handlePerm(perms) {
+    Alert.alert("Permissions", JSON.stringify(perms));
+  }
+  render() {
+    return (
+      <Button
+        title="Notify"
+        onPress={() => { this.notif.localNotif() }}
+      />
+    );
+  }
+}
+class MyDatePicker extends Component {
+  constructor(props){
+    super(props)
+    this.state = {date:"2018-05-25"}
+  }
+
+  render(){
+    return (
+      <DatePicker
+        style={{width: 200}}
+        date={this.state.date}
+        mode="date"
+        placeholder="select date"
+        format="YYYY-MM-DD"
+        minDate="2019-01-01"
+        maxDate="2020-01-01"
+        confirmBtnText="Confirm"
+        cancelBtnText="Cancel"
+        customStyles={{
+          dateIcon: {
+            position: 'absolute',
+            left: 0,
+            top: 4,
+            marginLeft: 0
+          },
+          dateInput: {
+            marginLeft: 36
+          }
+          // ... You can check the source to find the other keys.
+        }}
+        onDateChange={(date) => {this.setState({date: date})}}
+      />
+    )
+  }
+}
+class StakeEth extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      nonprofit: 'oganization 1',
+      initiator: this.props.initiator,
+      recipient: this.props.recipient,
+    }
+
+    this.handleStake = this.handleStake.bind(this);
+  }
+
+  handleStake() {
+
+  }
+  render() {
+    return (
+      <View>
+        <Text>Stake Ether</Text>
+        <MyDatePicker />
+        <Input
+          placeholder='Meeting Place'
+        />
+        <Input
+          placeholder='Amount of Ether to Stake'
+        />
+        <Picker
+          selectedValue={this.state.nonprofit}
+          style={{height: 50, width: 100}}
+          onValueChange={(itemValue, itemIndex) =>
+            this.setState({nonprofit: itemValue})
+          }>
+          <Picker.Item label="Nonprofit1" value="Nonprofit1" />
+          <Picker.Item label="Nonprofit2" value="Nonprofit1" />
+        </Picker>
+
+        <Button
+          title="Stake Meeting Now"
+          onPress={this.handleStake}
+        />
+      </View>
+    );
+  }
+}
+
+>>>>>>> Stashed changes
 const SignOut = withRouter(
   ({ history }) =>
     (
@@ -198,6 +307,28 @@ class DetailList extends Component {
     );
   }
 }
+
+class MyOverlay extends Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    return (
+      <Overlay
+        isVisible={this.props.visibility}
+        windowBackgroundColor="rgba(120, 120, 120, .8)"
+        overlayStyle={{ borderWidth: 1, borderStyle: 'solid', borderColor: '#c7c7cc'}}
+        borderRadius={5}
+        width={width*.8}
+        height="auto"
+        onBackdropPress={this.props.onBackdropPress}
+      >
+        {this.props.child}
+      </Overlay>
+    );
+  }
+}
+
 class UserDetailView extends React.Component {
   constructor(props) {
     super(props);
@@ -339,19 +470,39 @@ class UserDetailView extends React.Component {
         private: false,
         label: '',
         value: '',
-      }
+      },
+      meeting: {
+        isVisible: false,
+      },
+      currentCompanion: '',
     }
-
+    this.friendCard = this.friendCard.bind(this);
+    this.userCard = this.userCard.bind(this);
     this.generateDot = this.generateDot.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.hideOverlay = this.hideOverlay.bind(this);
     this.handleEdit = this.handleEdit.bind(this);
+    this.handleMeeting = this.handleMeeting.bind(this);
+    this.hideMeeting = this.hideMeeting.bind(this);
     this.handleSelectChange = this.handleSelectChange.bind(this);
   }
 
 
   scrollX = new Animated.Value(0);
 
+  handleMeeting(pageid) {
+    var companions = this.state.companions;
+    let index = companions.findIndex((obj => obj.id == pageid));
+
+    let companion_username = this.state.companions[index].username;
+    this.setState({
+      meeting: {
+        ...this.state.meeting,
+        isVisible: true,
+      },
+      currentCompanion: companion_username,
+    });
+  }
   handleClick(e, data) {
     this.setState({
       overlay: {
@@ -394,6 +545,14 @@ class UserDetailView extends React.Component {
         ...this.state.overlay,
         isVisible: false,
       }
+    });
+  }
+  hideMeeting() {
+    this.setState({
+      meeting: {
+        ...this.state.meeting,
+        isVisible: false,
+      },
     });
   }
   userCard(user) {
@@ -477,33 +636,28 @@ class UserDetailView extends React.Component {
                 </View>
               </View>
 
-
-            <Overlay
-              isVisible={this.state.overlay.isVisible}
-              windowBackgroundColor="rgba(120, 120, 120, .8)"
-              overlayStyle={{ borderWidth: 1, borderStyle: 'solid', borderColor: '#c7c7cc'}}
-              borderRadius={5}
-              width={width*.8}
-              height="auto"
+            <MyOverlay
+              visibility={this.state.overlay.isVisible}
               onBackdropPress={this.hideOverlay}
-            >
-              <View>
-                <Text>Edit Details</Text>
-                <Input
-                  label={this.state.overlay.label}
-                  value={this.state.overlay.value}
-                  onChangeText={text => this.setState({overlay: {...this.state.overlay, value: text}})}
-                />
-                <PrivacyChoice
-                  onSelectChange={this.handleSelectChange}
-                  private={this.state.overlay.private}
-                />
-                <Button
-                  title='Edit'
-                  onPress={this.handleEdit}
-                />
-              </View>
-            </Overlay>
+              child={
+                <View>
+                  <Text>Edit Details</Text>
+                  <Input
+                    label={this.state.overlay.label}
+                    value={this.state.overlay.value}
+                    onChangeText={text => this.setState({overlay: {...this.state.overlay, value: text}})}
+                  />
+                  <PrivacyChoice
+                    onSelectChange={this.handleSelectChange}
+                    private={this.state.overlay.private}
+                  />
+                  <Button
+                    title='Edit'
+                    onPress={this.handleEdit}
+                  />
+                </View>
+              }
+            />
             </View>
 
 
@@ -513,6 +667,106 @@ class UserDetailView extends React.Component {
         </View>
       );
 
+  }
+  friendCard(user) {
+    return (
+      <View key={user.id} style={styles.cardContainer}>
+        <Header
+          containerStyle={{height: 40, marginTop: 0, paddingTop: 0, backgroundColor: '#255E69'}}
+          placement="center"
+          centerComponent={{ text: user.username, style: {fontSize:25,  paddingBottom: 3, textAlign: 'center', fontWeight: 'bold', color: '#fff' } }}
+        />
+        <View style={{flexDirection: 'row', padding: 10, borderBottomWidth: 2, borderBottomColor: '#255E69'}}>
+          <Image
+            style={{width: 100, height: 100}}
+            source={require('./assets/images/user-blue.png')}
+            PlaceholderContent={<ActivityIndicator />}
+          />
+          <View style={{padding: 5, paddingLeft: 15}}>
+            <Text style={styles.currentLocation}>Current Location:</Text>
+              <Text style={styles.location}>{user.location.value}</Text>
+              <Text>{user.location.private?'Private':'Public'}</Text>
+          </View>
+        </View>
+        <ScrollView>
+          <Text style={styles.detailsHeader}>Details</Text>
+          <View style={styles.userDetailsContainer}>
+            <View style={styles.userDetails}>
+              {user.details.map((v, i) => (
+                <ListItem
+                  titleStyle={styles.profilePublicTitle}
+                  rightTitleStyle={styles.profilePublicRightTitle}
+                  rightTitle={user.details.occupation}
+                  containerStyle={v.private?styles.profilePrivateContentContainer:styles.profilePublicContainer}
+                  contentContainerStyle={styles.profileContentContainer}
+                  rightContentContainerStyle={styles.profileRightContainer}
+                  subtitleStyle={styles.profileSubtitleStyle}
+                  key={v.id}
+                  order={v.order}
+                  title={v.label}
+                  rightTitle={v.value}
+                  subtitle={v.private?'Private':'Public'}
+                />
+              ))}
+              {
+                user.custom_details?user.custom_details.map((v, i) => (
+                  <ListItem
+                    titleStyle={styles.profilePublicTitle}
+                    rightTitleStyle={styles.profilePublicRightTitle}
+                    rightTitle={user.details.occupation}
+                    containerStyle={styles.profilePublicContainer}
+                    contentContainerStyle={styles.profileContentContainer}
+                    rightContentContainerStyle={styles.profileRightContainer}
+                    subtitleStyle={styles.profileSubtitleStyle}
+                    key={v.id}
+                    order={v.order}
+                    title={v.label}
+                    rightTitle={v.value}
+                    subtitle={v.private?'Private':'Public'}
+                  />
+                )):false
+              }
+              <View style={styles.detailButtonView}>
+                <View style={{flex: 1}}/>
+                <Button
+                style={{ flex: 1, padding: 3 }}
+                title="Add Detail &nbsp;"
+                containerStyle={styles.detailButtonContainer}
+                buttonStyle={styles.bottomButton}
+                iconRight
+                  icon={
+                    <Icon
+                      name="plus-square"
+                      type='font-awesome'
+                      size={25}
+                      color= '#6A959D'
+                      iconStyle={styles.iconContainer}
+                    />
+                   }
+                  />
+                <View style={{flex: 1}}/>
+              </View>
+            </View>
+          </View>
+          <View>
+            <Button
+              title="Set Up Meeting"
+              onPress={() => this.handleMeeting(user.id)}
+            />
+          </View>
+          <MyOverlay
+            child={
+              <StakeEth
+                initiator={this.state.user.username}
+                recipient={this.state.currentCompanion}
+              />
+            }
+            visibility={this.state.meeting.isVisible}
+            onBackdropPress={this.hideMeeting}
+          />
+        </ScrollView>
+      </View>
+    );
   }
   generateDot(times) {
     if (times === 1) {
@@ -549,7 +803,7 @@ class UserDetailView extends React.Component {
           scrollEventThrottle={16}
         >
           {this.userCard(this.state.user)}
-          {this.state.companions.map(c => (this.userCard(c)))}
+          {this.state.companions.map(c => (this.friendCard(c)))}
         </ScrollView>
           <View style={{ flexDirection: 'row' }}>
             {this.generateDot(this.state.companions.length+1)}
