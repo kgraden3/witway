@@ -170,7 +170,10 @@ class PrivacyChoice extends Component {
 
     return (
       <ButtonGroup
-        buttonStyle={{backgroundColor: '#255E69'}}
+        buttonStyle={{backgroundColor: '#255E69', borderRadius: 3,}}
+        selectedButtonStyle={{backgroundColor: '#6A959D', borderRadius: 3, borderWidth: 2, borderColor: '#255E69'}}
+        textStyle={{color: '#437983'}}
+        selectedTextStyle={{color: '#FFF', fontFamily: 'bold'}}
         onPress={this.updateIndex}
         selectedIndex={selectedIndex}
         buttons={buttons}
@@ -481,7 +484,7 @@ class UserDetailView extends React.Component {
 
             <Overlay
               isVisible={this.state.overlay.isVisible}
-              windowBackgroundColor="rgba(120, 120, 120, .8)"
+              windowBackgroundColor="rgba(120, 120, 120, .5)"
               overlayStyle={{ borderWidth: 1, borderStyle: 'solid', borderColor: '#c7c7cc'}}
               borderRadius={5}
               width={width*.8}
@@ -489,9 +492,10 @@ class UserDetailView extends React.Component {
               onBackdropPress={this.hideOverlay}
             >
               <View>
-                <Text>Edit Detail</Text>
+                <View style={styles.modalHeaderContainer}>
+                  <Text style={styles.modalHeaderText}>Edit {this.state.overlay.label}</Text>
+                </View>
                 <Input
-                  label={this.state.overlay.label}
                   value={this.state.overlay.value}
                   onChangeText={text => this.setState({overlay: {...this.state.overlay, value: text}})}
                 />
@@ -500,8 +504,8 @@ class UserDetailView extends React.Component {
                   private={this.state.overlay.private}
                 />
                 <Button
-                  title='Edit'
-                  buttonStyle={{backgroundColor: '#255E69'}}
+                  title='Change'
+                  buttonStyle={{backgroundColor: '#012C34', marginLeft: 50, marginRight: 50}}
                   onPress={this.handleEdit}
                 />
               </View>
@@ -611,8 +615,8 @@ const Tabs = createBottomTabNavigator(
       tabBarIcon: ({ focused, horizontal, tintColor }) => getTabBarIcon(navigation, focused, tintColor),
     }),
     tabBarOptions: {
-      activeTintColor: 'tomato',
-      inactiveTintColor: 'gray',
+      activeTintColor: '#0F444F',
+      inactiveTintColor: '#6A959D',
     },
   }
 );
@@ -834,6 +838,20 @@ const styles = StyleSheet.create({
   },
   spacer2:{
     flex: 2
+  },
+  modalHeaderContainer:{
+    flexDirection: "row",
+    justifyContent: "center",
+    backgroundColor: '#255E69',
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    paddingTop: 2,
+    paddingBottom: 2
+  },
+  modalHeaderText:{
+    color: '#FFF',
+    fontSize: 23,
+    fontWeight: 'bold'
   }
 
 });
