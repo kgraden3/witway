@@ -44,10 +44,14 @@ class Notify extends Component {
 }
 class MyDatePicker extends Component {
   constructor(props){
-    super(props)
-    this.state = {date:"2018-05-25"}
+    super(props);
+    this.state = {date:"2018-05-25"};
+    this.handleChange = this.handleChange.bind(this);
   }
-
+  handleChange(date) {
+    this.setState({date: date});
+    this.props.handleChange(date);
+  }
   render(){
     return (
       <DatePicker
@@ -72,11 +76,50 @@ class MyDatePicker extends Component {
           }
           // ... You can check the source to find the other keys.
         }}
-        onDateChange={(date) => {this.setState({date: date})}}
+        onDateChange={this.handleChange}
       />
     )
   }
 }
+
+
+class FeedView extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      messages: [
+        {
+          type: 'staking',
+          leftAvatar: '',
+          username: 'Ben',
+          message: 'Staked 500 Eth',
+        },
+      ],
+    }
+
+
+  }
+  componentDidMount() {
+    this.setState({messages: this.props.screenProps.feedMessages});
+  }
+  render() {
+
+    return (
+      <View>
+        <Text style={{fontSize: 30}}>Feed</Text>
+        {this.state.messages.map((v, i) => (
+          <ListItem
+            key={i}
+            leftAvatar={{ source: require('./assets/images/witway-logo.png') }}
+            title={v.username}
+            subtitle={v.message}
+          />
+        ))}
+      </View>
+    );
+  }
+}
+
 class StakeEth extends Component {
   constructor(props) {
     super(props);
@@ -85,24 +128,50 @@ class StakeEth extends Component {
       nonprofit: 'oganization 1',
       initiator: this.props.initiator,
       recipient: this.props.recipient,
+      date: new Date(),
+      place: '',
+      amount: '',
     }
 
     this.handleStake = this.handleStake.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   handleStake() {
 
+
+    // show staked info in feed
+    var data = {
+      type: 'staking',
+      leftAvatar: './assets/images/witway-logo.png',
+      username: this.state.initiator,
+      message: this.state.initiator + ' staked ' + this.state.amount + ' to ' + this.state.recipient,
+    }
+    this.props.staked(data);
+    // interate with backend staking
+
+  }
+  handleChange(date) {
+    this.setState({
+      date
+    });
   }
   render() {
     return (
       <View>
         <Text>Stake Ether</Text>
-        <MyDatePicker />
+        <MyDatePicker
+          handleChange={this.handleChange}
+        />
         <Input
           placeholder='Meeting Place'
+          onChangeText={text => this.setState({place: text})}
+          value={this.state.place}
         />
         <Input
           placeholder='Amount of Ether to Stake'
+          onChangeText={text => this.setState({amount: text})}
+          value={this.state.amount}
         />
         <Picker
           selectedValue={this.state.nonprofit}
@@ -111,7 +180,7 @@ class StakeEth extends Component {
             this.setState({nonprofit: itemValue})
           }>
           <Picker.Item label="Nonprofit1" value="Nonprofit1" />
-          <Picker.Item label="Nonprofit2" value="Nonprofit1" />
+          <Picker.Item label="Nonprofit2" value="Nonprofit2" />
         </Picker>
 
         <Button
@@ -123,7 +192,6 @@ class StakeEth extends Component {
   }
 }
 
->>>>>>> Stashed changes
 const SignOut = withRouter(
   ({ history }) =>
     (
@@ -476,6 +544,7 @@ class UserDetailView extends React.Component {
       },
       currentCompanion: '',
     }
+    this.handleStaked = this.handleStaked.bind(this);
     this.friendCard = this.friendCard.bind(this);
     this.userCard = this.userCard.bind(this);
     this.generateDot = this.generateDot.bind(this);
@@ -489,7 +558,11 @@ class UserDetailView extends React.Component {
 
 
   scrollX = new Animated.Value(0);
+  handleStaked(data) {
+    this.setState({meeting: {...this.state.meeting, isVisible: false}});
+    this.props.screenProps.addFeedMessages(data);
 
+  }
   handleMeeting(pageid) {
     var companions = this.state.companions;
     let index = companions.findIndex((obj => obj.id == pageid));
@@ -759,6 +832,7 @@ class UserDetailView extends React.Component {
               <StakeEth
                 initiator={this.state.user.username}
                 recipient={this.state.currentCompanion}
+                staked={(data) => this.handleStaked(data)}
               />
             }
             visibility={this.state.meeting.isVisible}
@@ -813,13 +887,7 @@ class UserDetailView extends React.Component {
   }
 }
 
-class FeedView extends Component {
-  render() {
-    return (
-      <Text>Feed</Text>
-    );
-  }
-}
+
 class Friends extends Component {
   render() {
     return (
@@ -868,21 +936,42 @@ const Tabs = createBottomTabNavigator(
     },
   }
 );
-
-const RootStack = createStackNavigator(
-  {
-    LoginView: LoginForm,
-    UserView: UserDetailView,
-    CalendarView: Calendar,
-  },
-  {
-    initialRouteName: 'LoginView',
+class CustomNavigator extends Component {
+  static router = Tabs.router;
+  constructor(props) {
+    super(props);
+    this.state = {
+      messages: [],
+    };
+    this.addMessage = this.addMessage.bind(this);
   }
-);
 
-const AppContainer = createAppContainer(Tabs);
+
+  addMessage(data) {
+    var messages = this.state.messages;
+    messages.push(data);
+    this.setState({
+      messages,
+    });
+  }
+  render() {
+    const { navigation } = this.props;
+    return (
+      <Tabs
+        navigation={navigation}
+        screenProps={{
+          addFeedMessages: this.addMessage,
+          feedMessages: this.state.messages,
+        }}
+      />
+    );
+  }
+}
+
+
+
+const AppContainer = createAppContainer(CustomNavigator);
 class App extends Component {
-
   render() {
     return (
       <AppContainer />
