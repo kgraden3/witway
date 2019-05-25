@@ -8,12 +8,8 @@ import { createStackNavigator, createBottomTabNavigator, createAppContainer } fr
 import DatePicker from 'react-native-datepicker';
 
 
-
-
-
 const { width } = Dimensions.get('window');
 const { height} = Dimensions.get('window');
-
 
 class Notify extends Component {
   constructor(props) {
@@ -107,9 +103,15 @@ class FeedView extends Component {
 
     return (
       <View>
-        <Text style={{fontSize: 30}}>Feed</Text>
+      <View style={styles.detailsHeader}>
+              <Text style={styles.headerText}>Feed</Text>
+      </View>
         {this.state.messages.map((v, i) => (
           <ListItem
+            titleStyle={styles.profilePublicTitle}
+            containerStyle={styles.profilePublicContainer}
+            contentContainerStyle={styles.profileContentContainer}
+            subtitleStyle={styles.profileSubtitleStyle}
             key={i}
             leftAvatar={{ source: require('./assets/images/witway-logo.png') }}
             title={v.username}
@@ -159,11 +161,11 @@ class StakeEth extends Component {
   }
   render() {
     return (
+
       <View>
-        <Text>Stake Ether</Text>
-        <MyDatePicker
-          handleChange={this.handleChange}
-        />
+        <View style={styles.modalHeaderContainer}>
+          <Text style={styles.modalHeaderText}>Arrange a Meeting</Text>
+        </View>
         <Input
           placeholder='Meeting Place'
           onChangeText={text => this.setState({place: text})}
@@ -171,21 +173,27 @@ class StakeEth extends Component {
         />
         <Input
           placeholder='Amount of Ether to Stake'
+            keyboardType='numeric'
           onChangeText={text => this.setState({amount: text})}
           value={this.state.amount}
         />
+        <Text style={{paddingTop: 7, paddingLeft: 13}}>If you fail to show up, your stake will go to...</Text>
         <Picker
           selectedValue={this.state.nonprofit}
-          style={{height: 50, width: 100}}
+          style={{height: 50, marginLeft: 20}}
           onValueChange={(itemValue, itemIndex) =>
             this.setState({nonprofit: itemValue})
           }>
-          <Picker.Item label="Nonprofit1" value="Nonprofit1" />
-          <Picker.Item label="Nonprofit2" value="Nonprofit2" />
+          <Picker.Item label="A Random Non-Profit" value="random" />
+          <Picker.Item label="Giveth" value="giveth" />
+          <Picker.Item label="Audobon Society" value="audobon" />
+          <Picker.Item label="UNICEF" value="unicef" />
         </Picker>
-
+        <MyDatePicker     handleChange={this.handleChange} style={{marginBottom: 7, paddingLeft: 40}} />
         <Button
-          title="Stake Meeting Now"
+          title="Suggest Meeting"
+          titleStyle={{color: '#fff'}}
+          buttonStyle={{backgroundColor: '#0F444F', marginLeft: 60, marginTop: 15, marginRight: 60}}
           onPress={this.handleStake}
         />
       </View>
@@ -345,6 +353,10 @@ class PrivacyChoice extends Component {
 
     return (
       <ButtonGroup
+        buttonStyle={{backgroundColor: '#255E69', borderRadius: 3,}}
+        selectedButtonStyle={{backgroundColor: '#6A959D', borderRadius: 3, borderWidth: 2, borderColor: '#255E69'}}
+        textStyle={{color: '#437983'}}
+        selectedTextStyle={{color: '#FFF', fontWeight: 'bold'}}
         onPress={this.updateIndex}
         selectedIndex={selectedIndex}
         buttons={buttons}
@@ -382,7 +394,7 @@ class MyOverlay extends Component {
     return (
       <Overlay
         isVisible={this.props.visibility}
-        windowBackgroundColor="rgba(120, 120, 120, .8)"
+        windowBackgroundColor="rgba(120, 120, 120, .5)"
         overlayStyle={{ borderWidth: 1, borderStyle: 'solid', borderColor: '#c7c7cc'}}
         borderRadius={5}
         width={width*.8}
@@ -394,6 +406,11 @@ class MyOverlay extends Component {
     );
   }
 }
+
+
+
+
+
 
 class UserDetailView extends React.Component {
   constructor(props) {
@@ -410,7 +427,7 @@ class UserDetailView extends React.Component {
       user:
       {
         id: 1,
-        username: 'LeeJen',
+        username: 'Leoric',
         location: {
           value: 'Birmingham, AL',
           private: false,
@@ -467,7 +484,7 @@ class UserDetailView extends React.Component {
       [
         {
           id: 1,
-          username: 'Companion #1',
+          username: 'Friend #1',
           location: {
             value: 'Birmingham, AL',
             private: false,
@@ -499,7 +516,7 @@ class UserDetailView extends React.Component {
         },
         {
           id: 2,
-          username: 'Companion #2',
+          username: 'Friend #2',
           location: {
             value: 'Tokyo, Japan',
             private: false,
@@ -630,9 +647,9 @@ class UserDetailView extends React.Component {
       return (
         <View key={user.id} style={styles.cardContainer}>
           <Header
-            containerStyle={{height: 40, marginTop: 0, paddingTop: 0, backgroundColor: '#255E69'}}
+            containerStyle={{height: 50, marginTop: 0,  backgroundColor: '#255E69'}}
             placement="center"
-            centerComponent={{ text: user.username, style: {fontSize:25,  paddingBottom: 3, textAlign: 'center', fontWeight: 'bold', color: '#fff' } }}
+            centerComponent={{ text: user.username + "'s Profile", style: {fontSize:25,  paddingBottom: 3, textAlign: 'center', fontWeight: 'bold', color: '#fff' } }}
           />
           <View style={{flexDirection: 'row', padding: 10, borderBottomWidth: 2, borderBottomColor: '#255E69'}}>
             <Image
@@ -712,9 +729,10 @@ class UserDetailView extends React.Component {
               onBackdropPress={this.hideOverlay}
               child={
                 <View>
-                  <Text>Edit Details</Text>
+                  <View style={styles.modalHeaderContainer}>
+                    <Text style={styles.modalHeaderText}>Edit {this.state.overlay.label}</Text>
+                  </View>
                   <Input
-                    label={this.state.overlay.label}
                     value={this.state.overlay.value}
                     onChangeText={text => this.setState({overlay: {...this.state.overlay, value: text}})}
                   />
@@ -723,7 +741,8 @@ class UserDetailView extends React.Component {
                     private={this.state.overlay.private}
                   />
                   <Button
-                    title='Edit'
+                    title='Change'
+                    buttonStyle={{backgroundColor: '#255E69', marginLeft: 50, marginRight: 50}}
                     onPress={this.handleEdit}
                   />
                 </View>
@@ -732,10 +751,13 @@ class UserDetailView extends React.Component {
             </View>
 
 
+
+
+
+
+
           </ScrollView>
-
-
-        </View>
+       </View>
       );
 
   }
@@ -797,10 +819,11 @@ class UserDetailView extends React.Component {
                   />
                 )):false
               }
-              <View style={styles.detailButtonView}>
-                <View style={{flex: 1}}/>
+
+
+              <View style={styles.friendButtonView}>
                 <Button
-                style={{ flex: 1, padding: 3 }}
+                style={styles.friendButton}
                 title="Add Detail &nbsp;"
                 containerStyle={styles.detailButtonContainer}
                 buttonStyle={styles.bottomButton}
@@ -815,16 +838,29 @@ class UserDetailView extends React.Component {
                     />
                    }
                   />
-                <View style={{flex: 1}}/>
+                <Button
+                  style={styles.friendButton}
+                  title="Meet Up &nbsp;"
+                  onPress={() => this.handleMeeting(user.id)}
+                  containerStyle={styles.detailButtonContainer}
+                  buttonStyle={styles.bottomButton}
+                  iconRight
+                    icon={
+                      <Icon
+                        name="handshake-o"
+                        type='font-awesome'
+                        size={25}
+                        color= '#6A959D'
+                        iconStyle={styles.iconContainer}
+                      />
+                     }
+                />
+
               </View>
+
             </View>
           </View>
-          <View>
-            <Button
-              title="Set Up Meeting"
-              onPress={() => this.handleMeeting(user.id)}
-            />
-          </View>
+
           <MyOverlay
             child={
               <StakeEth
@@ -915,12 +951,25 @@ const getTabBarIcon = (navigation, focused, tintColor) => {
   // You can return any component that you like here!
   return <IconComponent name={iconName} size={25} color={tintColor} type="font-awesome" />;
 };
+class SpaceTime extends React.Component {
+  render() {
+    return (
+      <ScrollView>
+      <Image  style={styles.logo}
+              resizeMode={'contain'}
+              source={require('./assets/images/agenda.png')}
+              />
+      </ScrollView>
 
+
+    );
+  }
+}
 const Tabs = createBottomTabNavigator(
   {
     Profile: {screen: UserDetailView},
     Feed: {screen: FeedView},
-    Calendar: {screen: Calendar},
+    Calendar: {screen: SpaceTime},
     Friends: {screen: Friends},
   },
   {
@@ -929,8 +978,8 @@ const Tabs = createBottomTabNavigator(
       tabBarIcon: ({ focused, horizontal, tintColor }) => getTabBarIcon(navigation, focused, tintColor),
     }),
     tabBarOptions: {
-      activeTintColor: 'tomato',
-      inactiveTintColor: 'gray',
+      activeTintColor: '#0F444F',
+      inactiveTintColor: '#6A959D',
     },
   }
 );
@@ -1022,7 +1071,6 @@ const styles = StyleSheet.create({
      color: 'white',
      fontWeight: 'bold',
      textAlignVertical: 'center',
-
      marginLeft: 20,
      marginRight: 20,
      borderTopLeftRadius: 7,
@@ -1044,7 +1092,6 @@ const styles = StyleSheet.create({
      borderTopRightRadius: 10,
      borderColor: '#540004',
      borderWidth: 2,
-
   },
   headerWords: {
     fontSize: 25,
@@ -1088,7 +1135,6 @@ const styles = StyleSheet.create({
     fontSize: 19,
     fontWeight: 'bold',
     textAlign: 'center',
-
   },
   profileSubtitleStyle: {
       textAlign: 'center',
@@ -1099,7 +1145,6 @@ const styles = StyleSheet.create({
     fontSize: 19,
     fontWeight: 'bold',
     textAlign: 'center',
-
   },
   profilePublicContainer: {
     marginLeft: 20,
@@ -1109,7 +1154,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#255E69',
     backgroundColor: '#6A959D'
-
   },
   profilePrivateContentContainer: {
     marginLeft: 20,
@@ -1138,7 +1182,8 @@ const styles = StyleSheet.create({
   },
   location:{
     fontWeight: "bold",
-    fontSize: 25,
+    color: '#012C34',
+    fontSize: 30,
   },
   buttonPanel:{
     alignItems: 'center',
@@ -1156,11 +1201,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
   },
+  friendButtonView:{
+    marginTop: 5,
+    paddingLeft: 40,
+    paddingRight: 40,
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
+  friendButton:{
+    flex: 1,
+    padding: 5,
+  },
   detailButtonContainer:{
+    padding: 5,
     width: 150,
     flex: 1
   },
-  bottomButtonContainer:{
+  buttonContainer:{
     backgroundColor: '#012C34',
     borderRadius: 4
   },
@@ -1173,6 +1230,27 @@ const styles = StyleSheet.create({
   },
   spacer2:{
     flex: 2
+  },
+  modalHeaderContainer:{
+    flexDirection: "row",
+    justifyContent: "center",
+    backgroundColor: '#255E69',
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    paddingTop: 2,
+    paddingBottom: 2
+  },
+  modalHeaderText:{
+    color: '#FFF',
+    fontSize: 23,
+    fontWeight: 'bold'
+  },
+  headerText:{
+    fontSize:25,
+    paddingBottom: 3,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    color: '#fff'
   }
 
 });
