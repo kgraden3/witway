@@ -10,6 +10,7 @@ import DatePicker from 'react-native-datepicker';
 
 
 
+
 const { width } = Dimensions.get('window');
 const { height} = Dimensions.get('window');
 
