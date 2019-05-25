@@ -266,10 +266,7 @@ class LoginForm extends Component {
   render() {
     if (this.state.userLoggedIn) {
       return (
-        <UserDetailView
-          navigation={this.props.navigation}
-          username={this.state.username}
-        />
+        <AppContainer />
       );
     }
     return (
@@ -975,7 +972,7 @@ const AppContainer = createAppContainer(CustomNavigator);
 class App extends Component {
   render() {
     return (
-      <AppContainer />
+      <LoginForm />
     );
   }
 }
